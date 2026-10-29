@@ -38,6 +38,22 @@
       "d_fps": 35.76679999999999
     },
     {
+      "model": "YuNet",
+      "precision": "int8",
+      "system": "yunet_q8",
+      "size_mb": 0.14,
+      "frame_recall": 0.9466,
+      "pct_identities_leaked": 89.6552,
+      "pct_appearances_leaked": 53.75,
+      "max_exposed_run": 18.0,
+      "pct_area_masked": 0.9155,
+      "fps": 167.5334,
+      "p95_ms": 7.3666,
+      "d_frame_recall": -0.00990000000000002,
+      "d_pct_identities_leaked": 3.448299999999989,
+      "d_fps": -15.229500000000002
+    },
+    {
       "model": "SCRFD-500M",
       "precision": "fp32",
       "system": "scrfd_500m",
@@ -70,6 +86,22 @@
       "d_fps": -1.3131999999999948
     },
     {
+      "model": "SCRFD-500M",
+      "precision": "int8",
+      "system": "scrfd_500m_q8",
+      "size_mb": 0.73,
+      "frame_recall": 1.0,
+      "pct_identities_leaked": 0.0,
+      "pct_appearances_leaked": 0.0,
+      "max_exposed_run": 0.0,
+      "pct_area_masked": 1.079,
+      "fps": 168.2867,
+      "p95_ms": 7.8001,
+      "d_frame_recall": 0.0,
+      "d_pct_identities_leaked": 0.0,
+      "d_fps": 17.27879999999999
+    },
+    {
       "model": "YOLOv8n-face",
       "precision": "fp32",
       "system": "yolov8n_face",
@@ -100,6 +132,22 @@
       "d_frame_recall": 0.0,
       "d_pct_identities_leaked": 0.0,
       "d_fps": 0.6842999999999932
+    },
+    {
+      "model": "YOLOv8n-face",
+      "precision": "int8",
+      "system": "yolov8n_face_q8",
+      "size_mb": 3.64,
+      "frame_recall": 0.9999,
+      "pct_identities_leaked": 0.0,
+      "pct_appearances_leaked": 0.0,
+      "max_exposed_run": 0.0,
+      "pct_area_masked": 1.1438,
+      "fps": 63.7352,
+      "p95_ms": 17.8483,
+      "d_frame_recall": -9.999999999998899e-05,
+      "d_pct_identities_leaked": 0.0,
+      "d_fps": 4.061299999999996
     }
   ]
 }

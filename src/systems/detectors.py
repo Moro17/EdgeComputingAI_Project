@@ -48,16 +48,14 @@ class YuNet:
         return np.empty((0, 5), np.float32) if faces is None else faces[:, [0, 1, 2, 3, 14]]
 
 
-def to_fp16(src, dynamic_hw=False):
-    """FP16 copy of an ONNX model (float32 inputs/outputs kept) in models/. dynamic_hw frees YuNet's fixed 640x640."""
+def to_fp16(src):
+    """FP16 copy of an ONNX model (float32 inputs/outputs kept) in models/."""
     import onnx
     from onnxruntime.transformers.float16 import convert_float_to_float16  # onnxconverter-common's breaks YOLOv8
 
-    dst = MODELS / f"{Path(src).stem}_fp16{'_dyn' if dynamic_hw else ''}.onnx"
+    dst = MODELS / f"{Path(src).stem}_fp16.onnx"
     if not dst.exists():
         m = onnx.load(str(src))
-        if dynamic_hw:
-            dynamic(m)
         # a node using one tensor twice (SCRFD's Resize roi=scales) gets two same-named Casts: copy it first
         for i, n in reversed(list(enumerate(m.graph.node))):
             for k, t in enumerate(n.input):
@@ -68,27 +66,47 @@ def to_fp16(src, dynamic_hw=False):
     return dst
 
 
-def dynamic(m):
-    d = m.graph.input[0].type.tensor_type.shape.dim
-    d[2].dim_param, d[3].dim_param = "h", "w"
-    for o in m.graph.output:
-        o.type.tensor_type.shape.dim[1].dim_param = "n"
-    del m.graph.value_info[:]  # stale 640x640 shape hints
-    return m
+def model_for(src, precision, fp32_detector):
+    """Model file for a precision. INT8 is built once by static quantization, calibrated on the FP32 detector's inputs."""
+    if precision == "fp32":
+        return src
+    if precision == "fp16":
+        return to_fp16(src)
+    dst = MODELS / f"{Path(src).stem}_int8.onnx"
+    if not dst.exists():
+        from systems.quantize import calibration_feeds, to_int8
+
+        to_int8(src, calibration_feeds(fp32_detector()), dst)
+    return dst
+
+
+def dynamic(src):
+    """YuNet's ONNX is fixed at 640x640 (OpenCV reshapes it); free H and W so onnxruntime runs it at frame size."""
+    import onnx
+
+    dst = MODELS / f"{Path(src).stem}_dyn.onnx"
+    if not dst.exists():
+        m = onnx.load(str(src))
+        d = m.graph.input[0].type.tensor_type.shape.dim
+        d[2].dim_param, d[3].dim_param = "h", "w"
+        for o in m.graph.output:
+            o.type.tensor_type.shape.dim[1].dim_param = "n"
+        del m.graph.value_info[:]  # stale 640x640 shape hints
+        onnx.save(m, str(dst))
+    return dst
 
 
 class YuNetORT:
-    """YuNet on onnxruntime with OpenCV FaceDetectorYN's decoding, so FP32 and FP16 share one runtime and one decoder.
+    """YuNet on onnxruntime with OpenCV FaceDetectorYN's decoding, so FP32, FP16 and INT8 share one runtime and one decoder.
     Matches cv2.FaceDetectorYN within 1 px (tests/test_detectors.py)."""
 
-    def __init__(self, fp16=False):
-        import onnx
+    def __init__(self, precision="fp32"):
         import onnxruntime as ort
 
         YuNet()  # downloads the FP32 model if missing
-        src = MODELS / "face_detection_yunet_2023mar.onnx"
-        model = str(to_fp16(src, dynamic_hw=True)) if fp16 else dynamic(onnx.load(str(src))).SerializeToString()
-        self.net = ort.InferenceSession(model, providers=ort_providers())
+        src = dynamic(MODELS / "face_detection_yunet_2023mar.onnx")
+        path = model_for(src, precision, YuNetORT)
+        self.net = ort.InferenceSession(str(path), providers=ort_providers())
 
     def __call__(self, bgr):
         h, w = bgr.shape[:2]
@@ -111,13 +129,12 @@ class YuNetORT:
 
 
 class SCRFD:
-    def __init__(self, pack, file, fp16=False):
+    def __init__(self, pack, file, precision="fp32"):
         from insightface.model_zoo import get_model
         from insightface.utils.storage import ensure_available
 
         path = Path(ensure_available("models", pack, root="~/.insightface")) / file
-        if fp16:
-            path = to_fp16(path)
+        path = model_for(path, precision, lambda: SCRFD(pack, file))
         self.net = get_model(str(path), providers=ort_providers())
         self.net.prepare(ctx_id=0, input_size=(640, 640), det_thresh=FLOOR)
 
@@ -146,14 +163,14 @@ class YoloFace:
     URL = "https://github.com/akanametov/yolo-face/releases/download/1.0.0/yolov8n-face.onnx"
     SIZE = 640
 
-    def __init__(self, fp16=False):
+    def __init__(self, precision="fp32"):
         import onnxruntime as ort
 
         path = MODELS / "yolov8n-face.onnx"
         if not path.exists():
             MODELS.mkdir(exist_ok=True)
             urllib.request.urlretrieve(self.URL, path)
-        self.net = ort.InferenceSession(str(to_fp16(path) if fp16 else path), providers=ort_providers())
+        self.net = ort.InferenceSession(str(model_for(path, precision, YoloFace)), providers=ort_providers())
 
     def __call__(self, bgr):
         h, w = bgr.shape[:2]
@@ -193,11 +210,14 @@ SYSTEMS = {
     "scrfd_500m": (lambda _: SCRFD("buffalo_s", "det_500m.onnx"), 0.5),
     "scrfd_10g": (lambda _: SCRFD("buffalo_l", "det_10g.onnx"), 0.5),
     "yolov8n_face": (lambda _: YoloFace(), 0.5),
-    # precision study (Mac CPU): same model, same runtime (onnxruntime), FP32 vs FP16
+    # precision study (CPU): same model, same runtime (onnxruntime), FP32 vs FP16 vs INT8 (static, per-tensor QDQ)
     "yunet_ort": (lambda _: YuNetORT(), 0.9),
-    "yunet_fp16": (lambda _: YuNetORT(fp16=True), 0.9),
-    "scrfd_500m_fp16": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", fp16=True), 0.5),
-    "yolov8n_face_fp16": (lambda _: YoloFace(fp16=True), 0.5),
+    "yunet_fp16": (lambda _: YuNetORT("fp16"), 0.9),
+    "yunet_q8": (lambda _: YuNetORT("int8"), 0.9),
+    "scrfd_500m_fp16": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "fp16"), 0.5),
+    "scrfd_500m_q8": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "int8"), 0.5),
+    "yolov8n_face_fp16": (lambda _: YoloFace("fp16"), 0.5),
+    "yolov8n_face_q8": (lambda _: YoloFace("int8"), 0.5),
     "deface": (lambda _: Deface(), 0.2),
     "egoblur": (lambda p: EgoBlur(p), 0.9),
 }

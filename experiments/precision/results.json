@@ -1,5 +1,5 @@
 {
-  "created": "2026-10-29T10:26:55.051956+00:00",
+  "created": "2026-10-29T10:46:04.296569+00:00",
   "config": {
     "seqs": [
       "P2E_S1_C1.1",
@@ -24,8 +24,11 @@
       "yolov8n_face": 0.5,
       "yunet_ort": 0.9,
       "yunet_fp16": 0.9,
+      "yunet_q8": 0.9,
       "scrfd_500m_fp16": 0.5,
+      "scrfd_500m_q8": 0.5,
       "yolov8n_face_fp16": 0.5,
+      "yolov8n_face_q8": 0.5,
       "deface": 0.2,
       "egoblur": 0.9
     },
@@ -85,6 +88,23 @@
       "device": "['CPUExecutionProvider']"
     },
     {
+      "system": "yunet_q8",
+      "threshold": 0.9,
+      "frame_recall": 0.9466339176063414,
+      "appearances": 160,
+      "pct_appearances_leaked": 53.75,
+      "pct_appearances_leaked_null": 0.625,
+      "pct_identities_leaked": 89.65517241379311,
+      "max_exposed_run": 18,
+      "mean_max_exposed_run": 1.96875,
+      "probe_hit_rate": 0.99581589958159,
+      "pct_area_masked": 0.9154548642664474,
+      "fps": 167.53341963000582,
+      "p50_ms": 5.687625001883134,
+      "p95_ms": 7.366591793834232,
+      "device": "['CPUExecutionProvider']"
+    },
+    {
       "system": "scrfd_500m",
       "threshold": 0.5,
       "frame_recall": 1.0,
@@ -119,6 +139,23 @@
       "device": "['CPUExecutionProvider']"
     },
     {
+      "system": "scrfd_500m_q8",
+      "threshold": 0.5,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.078966987970055,
+      "fps": 168.28666505621422,
+      "p50_ms": 5.458166997414082,
+      "p95_ms": 7.800066197523847,
+      "device": "['CPUExecutionProvider']"
+    },
+    {
       "system": "yolov8n_face",
       "threshold": 0.5,
       "frame_recall": 1.0,
@@ -150,6 +187,23 @@
       "fps": 60.35816836841159,
       "p50_ms": 15.937125004711561,
       "p95_ms": 18.762100191088393,
+      "device": "['CPUExecutionProvider']"
+    },
+    {
+      "system": "yolov8n_face_q8",
+      "threshold": 0.5,
+      "frame_recall": 0.999888355476164,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1438119076982995,
+      "fps": 63.73515853759934,
+      "p50_ms": 15.218708009342663,
+      "p95_ms": 17.848274792777374,
       "device": "['CPUExecutionProvider']"
     }
   ]

@@ -1,8 +1,8 @@
-"""Precision study: the board candidates at FP32 vs FP16 on the same runtime (onnxruntime) and the same machine.
+"""Precision study: the board candidates at FP32 vs FP16 vs INT8 on the same runtime (onnxruntime) and the same machine.
 
 Runs the RQ1 benchmark for each (model, precision) into --out, reusing the judge and enrollment from --judge-from
-so only detection and scoring run, then writes precision.csv / precision.md with the FP16 - FP32 deltas.
-INT8 is measured on the board (NPU), not here.
+so only detection and scoring run, then writes precision.csv / precision.md with the deltas vs FP32.
+INT8 here = onnxruntime static QDQ on CPU (calibrated on S5); the NPU INT8 numbers come from the board.
 
 Usage: python src/precision_bench.py --out experiments/precision [--judge-from experiments/rq1] [--max-frames N]
 """
@@ -22,11 +22,14 @@ INSIGHTFACE = Path("~/.insightface/models/buffalo_s").expanduser()
 # model -> {precision: (system name, model file)}
 CANDIDATES = {
     "YuNet": {"fp32": ("yunet_ort", MODELS / "face_detection_yunet_2023mar.onnx"),
-              "fp16": ("yunet_fp16", MODELS / "face_detection_yunet_2023mar_fp16_dyn.onnx")},
+              "fp16": ("yunet_fp16", MODELS / "face_detection_yunet_2023mar_dyn_fp16.onnx"),
+              "int8": ("yunet_q8", MODELS / "face_detection_yunet_2023mar_dyn_int8.onnx")},
     "SCRFD-500M": {"fp32": ("scrfd_500m", INSIGHTFACE / "det_500m.onnx"),
-                   "fp16": ("scrfd_500m_fp16", MODELS / "det_500m_fp16.onnx")},
+                   "fp16": ("scrfd_500m_fp16", MODELS / "det_500m_fp16.onnx"),
+                   "int8": ("scrfd_500m_q8", MODELS / "det_500m_int8.onnx")},
     "YOLOv8n-face": {"fp32": ("yolov8n_face", MODELS / "yolov8n-face.onnx"),
-                     "fp16": ("yolov8n_face_fp16", MODELS / "yolov8n-face_fp16.onnx")},
+                     "fp16": ("yolov8n_face_fp16", MODELS / "yolov8n-face_fp16.onnx"),
+                     "int8": ("yolov8n_face_q8", MODELS / "yolov8n-face_int8.onnx")},
 }
 COLS = ["frame_recall", "pct_identities_leaked", "pct_appearances_leaked", "max_exposed_run", "pct_area_masked",
         "fps", "p95_ms"]
