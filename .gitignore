@@ -2,6 +2,7 @@ data/
 models/
 dist/
 .venv/
+.venv-*/
 __pycache__/
 *.jit
 results/

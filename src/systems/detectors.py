@@ -203,6 +203,15 @@ class EgoBlur:
         return a[a[:, 4] >= FLOOR]
 
 
+class BoardOnly:
+    """Detections produced on the i.MX 8M Plus by src/board_bench.py; the Mac only scores the copied dets/ cache."""
+
+    net, dev = None, "imx8mp-npu-vx (board_bench.py)"
+
+    def __call__(self, bgr):
+        raise RuntimeError("board-only system: run src/board_bench.py on the board and copy its dets/<name>/ here")
+
+
 # name -> (factory(egoblur_path), default operating threshold = each tool's own default)
 SYSTEMS = {
     "yunet": (lambda _: YuNet(), 0.9),
@@ -218,6 +227,9 @@ SYSTEMS = {
     "scrfd_500m_q8": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "int8"), 0.5),
     "yolov8n_face_fp16": (lambda _: YoloFace("fp16"), 0.5),
     "yolov8n_face_q8": (lambda _: YoloFace("int8"), 0.5),
+    # board NPU, INT8 TFLite at three input sizes; 0.49 = the saturated score bucket (see src/board_bench.py)
+    **{f"yolov8n_face_{s}_npu": (lambda _: BoardOnly(), 0.49) for s in (320, 416, 640)},
+    "yunet_608x800_npu": (lambda _: BoardOnly(), 0.9),
     "deface": (lambda _: Deface(), 0.2),
     "egoblur": (lambda p: EgoBlur(p), 0.9),
 }
