@@ -9,7 +9,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from loaders.chokepoint import frame_path, load_gt  # noqa: E402
-from systems.detectors import SYSTEMS  # noqa: E402
+from systems.detectors import MODELS, SYSTEMS  # noqa: E402
 
 
 def sample():
@@ -21,7 +21,10 @@ def sample():
 
 def test_detectors_find_the_chokepoint_face():
     g, img = sample()
-    for name in ["yunet", "yolov8n_face", "yunet_fp16", "scrfd_500m_fp16", "yolov8n_face_fp16", "yunet_q8", "scrfd_500m_q8", "yolov8n_face_q8"]:
+    for name in ["yunet", "yolov8n_face", "yunet_fp16", "scrfd_500m_fp16", "yolov8n_face_fp16", "yunet_q8", "scrfd_500m_q8", "yolov8n_face_q8", "yunet_ft"]:
+        if name == "yunet_ft" and not (MODELS / "yunet_ft.onnx").exists():
+            print("skip yunet_ft")
+            continue
         b = SYSTEMS[name][0](None)(img)
         assert b.dtype == np.float32 and b.shape[1] == 5, name
         hit = b[(b[:, 4] >= 0.5) & (abs(b[:, 0] + b[:, 2] / 2 - (g.x + g.w / 2)) < g.w / 2)]

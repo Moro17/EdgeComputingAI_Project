@@ -100,11 +100,11 @@ class YuNetORT:
     """YuNet on onnxruntime with OpenCV FaceDetectorYN's decoding, so FP32, FP16 and INT8 share one runtime and one decoder.
     Matches cv2.FaceDetectorYN within 1 px (tests/test_detectors.py)."""
 
-    def __init__(self, precision="fp32"):
+    def __init__(self, precision="fp32", path=None):
         import onnxruntime as ort
 
         YuNet()  # downloads the FP32 model if missing
-        src = dynamic(MODELS / "face_detection_yunet_2023mar.onnx")
+        src = dynamic(path or MODELS / "face_detection_yunet_2023mar.onnx")  # path=None: stock model
         path = model_for(src, precision, YuNetORT)
         self.net = ort.InferenceSession(str(path), providers=ort_providers())
 
@@ -223,6 +223,8 @@ SYSTEMS = {
     "yunet_ort": (lambda _: YuNetORT(), 0.9),
     "yunet_fp16": (lambda _: YuNetORT("fp16"), 0.9),
     "yunet_q8": (lambda _: YuNetORT("int8"), 0.9),
+    # shortcut: 0.9 is a placeholder until notebooks/finetune_yunet.ipynb Step 6 picks T on val
+    "yunet_ft": (lambda _: YuNetORT(path=MODELS / "yunet_ft.onnx"), 0.9),
     "scrfd_500m_fp16": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "fp16"), 0.5),
     "scrfd_500m_q8": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "int8"), 0.5),
     "yolov8n_face_fp16": (lambda _: YoloFace("fp16"), 0.5),
