@@ -9,25 +9,28 @@ All numbers below are from the 12 test sequences (ChokePoint P2 S1, 8,957 GT fac
 
 ## 1. Speed: no room left for the pipeline at 25 FPS
 
-25 FPS gives 40 ms per frame for the whole pipeline (decode + detect + track/recovery + blur). Decode, tracking
-and blur take an estimated 8-10 ms, so the detector gets about 30 ms (decode is not yet measured; reading the
-frames as JPEGs costs 20-28 ms on the board CPU today).
+25 FPS gives 40 ms per frame for the whole pipeline (decode + detect + track/recovery + anonymization).
+Measured on the board: hardware decode (vpudec + imxvideoconvert_g2d, `appsink sync=false`) 7.6 ms, pixelate
+1.1 ms (the earlier strong blur took 104 ms and was replaced), tracker reserve 2 ms. The detector gets
+40 - 7.6 - 1.1 - 2 = 29.3 ms.
 
-| Model on the board (INT8, NPU) | Detector ms (pre + NPU + post, p50) | NPU only (benchmark_model) |
-|---|---|---|
-| YOLOv8n-face 320 | 32.9 | 19.8 |
-| YOLOv8n-face 416 | 49.4 | - |
-| YOLOv8n-face 640 | 104.0 | - |
-| YuNet 608x800 | 32.2 | 17.7 |
+| Model on the board (INT8, NPU) | Detector ms (pre + NPU + post, p50) | NPU only (benchmark_model) | % identities exposed |
+|---|---|---|---|
+| YOLOv8n-face 256 | 23.2 | 13.4 | 34.5 |
+| YOLOv8n-face 320 | 32.9 | 19.8 | 3.4 |
+| YOLOv8n-face 416 | 49.4 | - | 0.0 |
+| YOLOv8n-face 640 | 104.0 | - | 0.0 |
+| YuNet 608x800 | 32.2 | 17.8 | 86.2 |
+| YuNet 480x640 | 27.0 | 11.3 | 86.2 |
 
-YOLO at 320 is already over the ~30 ms detector share and leaves 7 ms of the 40 ms for everything else, so
+YOLO at 320 is over the 29.3 ms detector share and leaves 7 ms of the 40 ms for everything else, so
 none of the recovery pipeline (tracker, pose fallback) fits next to it. Measured end to end with JPEG reading,
 the YOLO-320 loop runs at about 17 FPS. 416 and 640 are far over. Making YOLO faster means going below 320,
 which makes the face-size problem in 2 worse.
 
-Caveat: YuNet at full resolution costs the same today, so speed alone does not rule YOLO out. YuNet
-qualifies only if it fits the ~30 ms detector share at a smaller input, with room for the pipeline; that
-sweep is still to be run.
+YuNet 608x800 costs about the same as YOLO-320 (32.2 ms), so speed alone does not rule YOLO out at that size.
+YuNet 480x640 fits (27.0 ms), and YOLO-256 also fits (23.2 ms) but exposes 34.5% of identities under pixelation:
+going below 320 loses faces (on clean video, recall 0.995). YuNet is the model we can fine-tune at a size that fits.
 YuNet has the room to get there: about 75k parameters against about 3M for YOLOv8n-face, and it already
 processes 4.75x more pixels than YOLO-320 in the same time.
 
@@ -39,8 +42,8 @@ processes 4.75x more pixels than YOLO-320 in the same time.
 | 416 | 0.52 | 28 px | 9 |
 | 320 | 0.40 | 21 px | 2,014 (22%) |
 
-On clean video YOLO-320 still reaches recall 0.999 and 0% identities exposed, so this costs nothing on clean
-video. But it leaves no margin: under blur, low light or smaller faces (the stress tier), these faces are lost
+On clean video YOLO-320 still reaches recall 0.999 and exposes 3.4% of identities (1 of 29), so this costs
+little on clean video. But it leaves no margin: under blur, low light or smaller faces (the stress tier), these faces are lost
 first. Going below 320 to save time would make this worse. The 4:3 frame also fills only 320x240 of the
 320x320 input, so a quarter of the NPU's work is padding.
 
@@ -58,6 +61,6 @@ ships in OpenCV as `cv2.FaceDetectorYN`, the default face detector on edge devic
 
 ## What would reverse this
 
-If YOLO at a smaller input (256) leaves room for the pipeline in 40 ms and still exposes 0% on the stress
+If YOLO at a smaller input (256; measured: fits at 23.2 ms but exposes 34.5%) leaves room for the pipeline in 40 ms and still exposes 0% on the stress
 tier, the budget rule picks YOLO. The finding would then be "a good detector is enough", and the paper would
 say so. The rule is: lowest exposure under the detector's share of 40 ms, measured on the board.

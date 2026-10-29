@@ -1,0 +1,39 @@
+{
+  "op": "pixelate",
+  "n": 2000,
+  "threshold": 0.17748527228832245,
+  "pct_recognised_clean": 100.0,
+  "pct_recognised": 0.7000000000000001,
+  "pct_recognised_wrong_identity": 0.44999999999999996,
+  "pct_rank1_blur": 4.6,
+  "pct_rank1_chance": 3.4482758620689653,
+  "mean_sim_clean": 0.6774214506149292,
+  "mean_sim_blur": 0.050460439175367355,
+  "mean_sim_blur_wrong": 0.03766966611146927,
+  "by_face_width": [
+    {
+      "size": "<40px",
+      "n": 457,
+      "pct_clean": 100.0,
+      "pct_blur": 0.8799999952316284
+    },
+    {
+      "size": "40-60px",
+      "n": 792,
+      "pct_clean": 100.0,
+      "pct_blur": 0.6299999952316284
+    },
+    {
+      "size": "60-80px",
+      "n": 371,
+      "pct_clean": 100.0,
+      "pct_blur": 1.0800000429153442
+    },
+    {
+      "size": ">=80px",
+      "n": 380,
+      "pct_clean": 100.0,
+      "pct_blur": 0.25999999046325684
+    }
+  ]
+}

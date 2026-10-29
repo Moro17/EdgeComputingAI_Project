@@ -1,4 +1,8 @@
-"""Shared anonymization applied to every system's detections: scale boxes by 1.3, Gaussian-blur them."""
+"""Shared anonymization applied to every system's detections: scale boxes by 1.3, pixelate them (6 cells).
+
+Pixelate, not strong blur: blur costs 104 ms per frame on the i.MX 8M Plus against about 1.5 ms for pixelate, and
+pixelate passes the judge check (0.8 % recognised, <= 2 % required; experiments/rq1/checks/pixelate.json).
+blur and weak_blur stay as reference ops for src/checks/blur_check.py."""
 import cv2
 import numpy as np
 
@@ -18,6 +22,15 @@ def box_mask(xyxy, shape):
     for x1, y1, x2, y2 in xyxy:
         m[y1:y2, x1:x2] = True
     return m
+
+
+def pixelate(img, xyxy, cells=6):
+    out = img.copy()
+    for x1, y1, x2, y2 in xyxy:
+        if x2 > x1 and y2 > y1:
+            small = cv2.resize(out[y1:y2, x1:x2], (cells, cells), interpolation=cv2.INTER_AREA)
+            out[y1:y2, x1:x2] = cv2.resize(small, (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST)
+    return out
 
 
 def blur(img, xyxy):

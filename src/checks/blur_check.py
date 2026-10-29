@@ -18,16 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from judge.arcface import Judge, eye_align, templates  # noqa: E402
 from loaders.chokepoint import frame_path, load_gt  # noqa: E402
-from systems.anonymize import blur, scale_boxes, weak_blur  # noqa: E402
-
-
-def pixelate(img, xyxy, cells=6):
-    out = img.copy()
-    for x1, y1, x2, y2 in xyxy:
-        if x2 > x1 and y2 > y1:
-            small = cv2.resize(out[y1:y2, x1:x2], (cells, cells), interpolation=cv2.INTER_AREA)
-            out[y1:y2, x1:x2] = cv2.resize(small, (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST)
-    return out
+from systems.anonymize import blur, pixelate, scale_boxes, weak_blur  # noqa: E402
 
 
 def solid(img, xyxy):

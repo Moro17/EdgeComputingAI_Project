@@ -35,6 +35,28 @@ end-to-end FPS and p50/p95 ms on the board. On clean ChokePoint and on the stres
 - **Output:** the YuNet input size that fits the detector's share of 40 ms with room for the pipeline.
   Fine-tuning happens at this size. If YOLO-256 fits and still exposes 0%, revisit the decision doc.
 
+**Outcome (measured on the i.MX 8M Plus, 12 test sequences; anonymization = pixelate, 6 cells):**
+
+| System | NPU only ms | p50 pre / npu / post ms | p50 detector ms | % identities exposed | frame recall |
+|---|---|---|---|---|---|
+| YuNet 608x800 | 17.8 | 1.7 / 24.2 / 5.8 | 32.2 | 86.2 | 0.955 |
+| **YuNet 480x640** | 11.3 | 5.6 / 17.3 / 4.2 | **27.0** | 86.2 | 0.944 |
+| YuNet 384x512 | 6.6 | 3.7 / 10.0 / 3.2 | 16.8 | 96.6 | 0.885 |
+| YuNet 320x416 | 5.1 | 3.8 / 7.0 / 2.6 | 13.4 | 100.0 | 0.741 |
+| YOLOv8n-face 256 | 13.4 | 5.0 / 17.6 / 0.6 | 23.2 | 34.5 | 0.995 |
+| YOLOv8n-face 320 | 19.8 | - | 32.9 | 3.4 | 0.999 |
+
+- Decode (800x600 H.264, 300 frames): vpudec + imxvideoconvert_g2d + videoconvert, `appsink sync=false`:
+  p50 7.6 ms. With CPU videoconvert instead of g2d: 22.6 ms. (With appsink's default sync the video is paced to
+  30 FPS and reads 33 ms; that is not decode cost.)
+- Anonymization, 2 face-sized boxes: pixelate (6 cells) p50 1.1 ms; the previous strong blur 104 ms, which alone
+  broke the budget. Pixelate passes the judge check (0.7% recognised, at most 2% required).
+- Budget: detector = 40 - 7.6 (decode) - 1.1 (pixelate) - 2 (tracker reserve) = 29.3 ms.
+- **Chosen: YuNet 480x640** (largest size with p50 <= 29.3 ms: 27.0 ms; 608x800 at 32.2 ms is over).
+  Stock YuNet exposes 86% of identities at this size; closing that gap is the fine-tuning's job.
+- YOLO-256 fits the budget (23.2 ms) but exposes 34.5% of identities, so the reversal condition (fits and 0%)
+  does not trigger. YOLO-320 exposes 3.4% and is over budget.
+
 ## Phase 2: split ChokePoint
 
 | Split | Sequences | Use |
