@@ -1,0 +1,11 @@
+numpy
+pandas
+opencv-python>=4.8
+onnxruntime        # onnxruntime-gpu on Colab/CUDA
+insightface
+deface
+# torch: only for EgoBlur (preinstalled on Colab)
+supervision        # ByteTrack
+rtmlib             # YOLOX + RTMPose pose fallback
+mediapipe          # BlazeFace
+matplotlib         # report plots

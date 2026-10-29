@@ -1,0 +1,13 @@
+data/
+models/
+dist/
+.venv/
+__pycache__/
+*.jit
+results/
+# face embeddings are biometric data and regenerable: never commit
+emb/
+# per-sequence caches: big, regenerable, kept on Drive / locally only
+dets/
+scores/
+poses/
