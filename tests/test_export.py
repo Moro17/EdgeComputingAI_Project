@@ -27,6 +27,20 @@ def test_static_onnx_fixes_shape_and_keeps_output_names():
     assert [o.name for o in m.graph.output] == [f"{k}_{s}" for k in ("cls", "obj", "bbox", "kps") for s in (8, 16, 32)]
 
 
+def test_static_onnx_rejects_reordered_outputs():
+    m = onnx.load(str(MODELS / "face_detection_yunet_2023mar.onnx"))
+    outs = list(m.graph.output)
+    del m.graph.output[:]
+    m.graph.output.extend(outs[::-1])
+    bad = TMP / "bad.onnx"
+    onnx.save(m, str(bad))
+    try:
+        static_onnx(bad, 320, 416, TMP / "o.onnx")
+    except AssertionError:
+        return
+    raise AssertionError("reordered outputs accepted")
+
+
 def test_int8_tflite_matches_ort():
     path = MODELS / "yunet_320x416_int8.tflite"
     if not path.exists():

@@ -27,6 +27,10 @@ ONNX2TF_DATA = "calibration_image_sample_data_20x128x128x3_float32.npy"
 
 def static_onnx(src: Path, h: int, w: int, dst: Path) -> Path:
     m = onnx.load(str(src))
+    want = [f"{k}_{s}" for k in ("cls", "obj", "bbox", "kps") for s in (8, 16, 32)]
+    got = [o.name for o in m.graph.output]
+    # board_bench.YuNetTFLite decodes output_0..11 by position, so the ONNX order must be exactly this
+    assert got == want, f"{src.name} outputs {got} != expected {want}"
     for d, v in zip(m.graph.input[0].type.tensor_type.shape.dim, (1, 3, h, w)):
         d.ClearField("dim_param")
         d.dim_value = v
