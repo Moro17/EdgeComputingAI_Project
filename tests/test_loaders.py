@@ -1,4 +1,5 @@
 """Music Video loader + box-only judge path on a synthetic 4-frame video. Run: python tests/test_loaders.py (or pytest)."""
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -9,6 +10,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+import splits  # noqa: E402
 from judge.arcface import align, templates  # noqa: E402
 from loaders import musicvideo as mv  # noqa: E402
 
@@ -53,6 +55,17 @@ def test_align_falls_back_to_box_without_eyes():
 def test_iou():
     a = np.array([[0, 0, 10, 10]], float)
     assert np.allclose(mv.iou(a, np.array([[0, 0, 10, 10], [5, 0, 10, 10], [50, 50, 5, 5]], float)), [[1, 1 / 3, 0]])
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_splits_are_disjoint_and_test_is_the_cached_benchmark():
+    sets = [set(s) for s in (splits.TRAIN, splits.VAL, splits.TEST, splits.CALIB)]
+    assert sum(map(len, sets)) == len(set().union(*sets))
+    assert splits.TEST == json.loads((ROOT / "experiments/board/data_config.json").read_text())["seqs"]
+    assert (len(splits.TRAIN), len(splits.VAL), len(splits.TEST)) == (24, 36, 12)
+    assert all(s.startswith("P1") for s in splits.TRAIN) and splits.split_of("P2E_S5_C1.1") == "calib"
 
 
 if __name__ == "__main__":

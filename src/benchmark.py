@@ -25,6 +25,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
+import splits
 from judge.arcface import Judge, align, templates
 from metrics.exposure import PROTECTED_COVERAGE, coverage, summarise
 from systems.anonymize import MASK_SCALE, box_mask, fast_blur, scale_boxes
@@ -139,7 +140,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", default="chokepoint", choices=["chokepoint", "musicvideo"], help="loader in src/loaders/")
     p.add_argument("--systems", nargs="+", default=list(SYSTEMS), choices=list(SYSTEMS))
-    p.add_argument("--seqs", nargs="+", default=None, help="default: every sequence with frames and GT on disk")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--seqs", nargs="+", default=None, help="default: every sequence with frames and GT on disk")
+    g.add_argument("--split", choices=["train", "val", "test"], default=None, help="fixed ChokePoint split from src/splits.py")
     p.add_argument("--max-frames", type=int, default=None, help="first N frames per sequence (smoke tests)")
     p.add_argument("--thr", nargs="*", default=[], metavar="SYSTEM=T", help="override operating thresholds")
     p.add_argument("--egoblur", type=Path, default=None, help="path to ego_blur_face.jit (gated download)")
@@ -151,7 +154,7 @@ def main():
     if systems != args.systems:
         print("skip egoblur: pass --egoblur with the path to ego_blur_face.jit")
     ds = importlib.import_module(f"loaders.{args.dataset}")
-    seqs = args.seqs or ds.sequences()
+    seqs = args.seqs or (getattr(splits, args.split.upper()) if args.split else ds.sequences())
     if len({ds.session(s) for s in seqs}) < 2:
         p.error("need sequences from >= 2 recording sessions: each sequence is judged against a gallery from the others")
     frames = {s: ds.frame_numbers(s)[: args.max_frames] for s in seqs}
