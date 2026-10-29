@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from judge.arcface import ARC_EYES, eye_align, session  # noqa: E402
 from metrics.exposure import coverage, max_run  # noqa: E402
-from systems.anonymize import box_mask, pixelate, scale_boxes  # noqa: E402
+from systems.anonymize import blur, box_mask, fast_blur, pixelate, scale_boxes  # noqa: E402
 
 
 def test_eye_align_maps_eyes_to_template():
@@ -44,6 +44,16 @@ def test_pixelate_flattens_the_face():
     out = pixelate(img, np.array([[20, 20, 80, 80]]))
     assert out[30:70, 30:70].std() < 0.05 * img[30:70, 30:70].std()
     assert np.array_equal(out[:20], img[:20])  # outside the box untouched
+
+
+def test_fast_blur_matches_blur_and_stays_in_the_box():
+    img = np.random.default_rng(0).integers(0, 256, (120, 120, 3), dtype=np.uint8)
+    box = np.array([[20, 20, 80, 90]])
+    a, b = fast_blur(img, box), blur(img, box)
+    assert np.abs(a[20:90, 20:80].astype(int) - b[20:90, 20:80]).mean() < 5
+    mask = np.ones(img.shape[:2], bool)
+    mask[20:90, 20:80] = False
+    assert np.array_equal(a[mask], img[mask])
 
 
 if __name__ == "__main__":

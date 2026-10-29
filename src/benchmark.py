@@ -27,7 +27,7 @@ import pandas as pd
 
 from judge.arcface import Judge, align, templates
 from metrics.exposure import PROTECTED_COVERAGE, coverage, summarise
-from systems.anonymize import MASK_SCALE, box_mask, pixelate, scale_boxes
+from systems.anonymize import MASK_SCALE, box_mask, fast_blur, scale_boxes
 from systems.detectors import FLOOR, SYSTEMS, used_providers
 
 FAR = 0.01
@@ -112,7 +112,7 @@ def score(ds, judge, dets, thr, seq, frames, tmpl, out, tag):
             row = {"seq": seq, "frame": n, "identity": r.identity, "coverage": cov, "protected": cov >= PROTECTED_COVERAGE}
             if not row["protected"] and r.identity in tmpl:
                 if anon is None:
-                    anon = pixelate(cv2.imread(str(ds.frame_path(seq, n))), xyxy)
+                    anon = fast_blur(cv2.imread(str(ds.frame_path(seq, n))), xyxy)
                 crops.append(align(anon, r))
                 row["probe"] = len(crops) - 1
             rows.append(row)

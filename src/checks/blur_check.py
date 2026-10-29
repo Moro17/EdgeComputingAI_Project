@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from judge.arcface import Judge, eye_align, templates  # noqa: E402
 from loaders.chokepoint import frame_path, load_gt  # noqa: E402
-from systems.anonymize import blur, pixelate, scale_boxes, weak_blur  # noqa: E402
+from systems.anonymize import blur, fast_blur, pixelate, scale_boxes, weak_blur  # noqa: E402
 
 
 def solid(img, xyxy):
@@ -28,7 +28,7 @@ def solid(img, xyxy):
     return out
 
 
-OPS = {"blur": blur, "weak_blur": weak_blur, "pixelate": pixelate, "solid": solid}
+OPS = {"blur": blur, "weak_blur": weak_blur, "pixelate": pixelate, "fast_blur": fast_blur, "solid": solid}
 
 
 def main():

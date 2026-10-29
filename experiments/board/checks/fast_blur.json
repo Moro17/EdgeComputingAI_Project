@@ -1,0 +1,39 @@
+{
+  "op": "fast_blur",
+  "n": 2000,
+  "threshold": 0.17748527228832245,
+  "pct_recognised_clean": 100.0,
+  "pct_recognised": 0.3,
+  "pct_recognised_wrong_identity": 0.44999999999999996,
+  "pct_rank1_blur": 4.05,
+  "pct_rank1_chance": 3.4482758620689653,
+  "mean_sim_clean": 0.6774214506149292,
+  "mean_sim_blur": 0.04656853899359703,
+  "mean_sim_blur_wrong": 0.04247535765171051,
+  "by_face_width": [
+    {
+      "size": "<40px",
+      "n": 457,
+      "pct_clean": 100.0,
+      "pct_blur": 0.0
+    },
+    {
+      "size": "40-60px",
+      "n": 792,
+      "pct_clean": 100.0,
+      "pct_blur": 0.3799999952316284
+    },
+    {
+      "size": "60-80px",
+      "n": 371,
+      "pct_clean": 100.0,
+      "pct_blur": 0.5400000214576721
+    },
+    {
+      "size": ">=80px",
+      "n": 380,
+      "pct_clean": 100.0,
+      "pct_blur": 0.25999999046325684
+    }
+  ]
+}

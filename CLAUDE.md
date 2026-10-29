@@ -89,9 +89,9 @@ Phases, gates and the ChokePoint train/val/test split: docs/plan.md.
   (decode + detect + track/recovery + blur), not the detector alone.
 - Edge detector: YuNet (fine-tuned), not YOLOv8n-face 320; YOLO stays as the "big detector" reference.
   Main question: can a small fine-tuned YuNet + pipeline match a big YOLO? Reasons: docs/decisions/why-not-yolo320.md.
-- Anonymization is pixelate with 6 cells (strong blur costs 104 ms on the board, pixelate 1.1 ms). Decode on the board
-  uses vpudec + imxvideoconvert_g2d with appsink sync=false (7.6 ms).
-- Edge input size: YuNet 480x640 (largest whose detector p50 fits 40 - decode - pixelate - 2 ms); see docs/plan.md Phase 1.
+- Anonymization is fast_blur (the strong blur computed at 16 px: 2.9 ms on the board against 104 ms, 0.3% recognised
+  by the judge). Decode on the board uses vpudec + imxvideoconvert_g2d with appsink sync=false (7.6 ms).
+- Edge input size: YuNet 480x640 (largest whose detector p50 fits 40 - decode - fast_blur - 2 ms); see docs/plan.md Phase 1.
 
 ## Open decisions (settle with Moro)
 - RQ3 scope if synthetic replacement is too heavy for the board (blur vs face bank vs masking).
