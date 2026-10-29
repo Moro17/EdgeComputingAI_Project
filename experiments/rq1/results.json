@@ -1,0 +1,117 @@
+{
+  "created": "2026-10-29T07:56:42.040976+00:00",
+  "config": {
+    "seqs": [
+      "P2E_S1_C1.1",
+      "P2E_S1_C1.2",
+      "P2E_S1_C2.1",
+      "P2E_S1_C2.2",
+      "P2E_S1_C3.1",
+      "P2E_S1_C3.2",
+      "P2L_S1_C1.1",
+      "P2L_S1_C1.2",
+      "P2L_S1_C2.1",
+      "P2L_S1_C2.2",
+      "P2L_S1_C3.1",
+      "P2L_S1_C3.2"
+    ],
+    "max_frames": null,
+    "thresholds": {
+      "yunet": 0.9,
+      "yunet_int8": 0.9,
+      "scrfd_500m": 0.5,
+      "scrfd_10g": 0.5,
+      "deface": 0.2,
+      "egoblur": 0.9
+    },
+    "det_floor": 0.05,
+    "mask_scale": 1.3,
+    "protected_coverage": 0.8,
+    "far": 0.01
+  },
+  "judge": {
+    "far": 0.01,
+    "threshold": 0.17748527228832245,
+    "tar_clean": 0.999888355476164,
+    "n_genuine": 8957,
+    "n_impostor": 250796,
+    "providers": [
+      "CPUExecutionProvider"
+    ]
+  },
+  "host": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "processor": "arm",
+    "gpu": null
+  },
+  "results": [
+    {
+      "system": "yunet",
+      "threshold": 0.9,
+      "frame_recall": 0.9726470916601541,
+      "appearances": 160,
+      "pct_appearances_leaked": 35.0,
+      "pct_appearances_leaked_null": 0.625,
+      "pct_identities_leaked": 82.75862068965517,
+      "max_exposed_run": 15,
+      "mean_max_exposed_run": 1.1125,
+      "probe_hit_rate": 0.9918367346938776,
+      "pct_area_masked": 0.9534825627100554,
+      "fps": 27.100382147378387,
+      "p50_ms": 35.91536800013273,
+      "p95_ms": 44.366968200029056,
+      "device": "opencv-cpu"
+    },
+    {
+      "system": "yunet_int8",
+      "threshold": 0.9,
+      "frame_recall": 0.8551970525845707,
+      "appearances": 160,
+      "pct_appearances_leaked": 76.875,
+      "pct_appearances_leaked_null": 2.5,
+      "pct_identities_leaked": 100.0,
+      "max_exposed_run": 29,
+      "mean_max_exposed_run": 6.91875,
+      "probe_hit_rate": 0.9992289899768697,
+      "pct_area_masked": 0.5522288123674759,
+      "fps": 10.554385379210345,
+      "p50_ms": 92.51245099949301,
+      "p95_ms": 109.88750200031062,
+      "device": "opencv-cpu"
+    },
+    {
+      "system": "scrfd_500m",
+      "threshold": 0.5,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1133965482423873,
+      "fps": 11.796887093561715,
+      "p50_ms": 83.45736199953535,
+      "p95_ms": 97.42949039991798,
+      "device": "['CPUExecutionProvider']"
+    },
+    {
+      "system": "scrfd_10g",
+      "threshold": 0.5,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1244579312533358,
+      "fps": 38.720915179058856,
+      "p50_ms": 25.774297999305418,
+      "p95_ms": 26.890772599472257,
+      "device": "['CPUExecutionProvider']"
+    }
+  ]
+}

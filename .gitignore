@@ -9,7 +9,7 @@ results/
 emb/
 # per-sequence caches: big, regenerable, kept on Drive / locally only
 dets/
-scores/
+scores*/
 poses/
 # face crops from the dataset: never commit
 *.jpg

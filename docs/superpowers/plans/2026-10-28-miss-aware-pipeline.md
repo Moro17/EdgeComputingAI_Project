@@ -281,7 +281,7 @@ def test_frame_latency():
 ```
 - [ ] **Step 2:** Run → FAIL.
 - [ ] **Step 3:** Implement. `bytetrack`/`coast`/`pose` raise `NotImplementedError` until their tasks.
-- [ ] **Step 4:** Run → `ok`. Regression: `.venv/bin/python src/benchmark.py --systems yunet yunet_int8 --out experiments/rq1` reproduces the RQ1 rows (yunet: recall 0.956, 86.2 % identities leaked).
+- [ ] **Step 4:** Run → `ok`. Regression: `.venv/bin/python src/benchmark.py --systems yunet yunet_int8 --out experiments/rq1` reproduces `experiments/rq1/results.csv` (strong blur, cached 2-dp scores: yunet recall 0.973, 82.8 % identities leaked). Detection caches written before 2026-10-29 have 2-decimal scores; re-detect in Colab for exact thresholds.
 - [ ] **Step 5:** First B3 numbers: `--systems yunet_int8 yunet_int8+skip{2,3,5}+hold scrfd_500m scrfd_500m+skip{2,3,5}+hold --out experiments/rq1`. Expected: leaks and fps both rise with N.
 - [ ] **Step 6:** Commit `feat: benchmark scores spec systems from the detection cache (B1, B3)`.
 

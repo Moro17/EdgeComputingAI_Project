@@ -1,0 +1,5 @@
+system,threshold,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet,0.9,0.9726,160,35.0,0.625,82.7586,15,1.1125,0.9918,0.9535,27.1004,35.9154,44.367,opencv-cpu
+yunet_int8,0.9,0.8552,160,76.875,2.5,100.0,29,6.9188,0.9992,0.5522,10.5544,92.5125,109.8875,opencv-cpu
+scrfd_500m,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1134,11.7969,83.4574,97.4295,['CPUExecutionProvider']
+scrfd_10g,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1245,38.7209,25.7743,26.8908,['CPUExecutionProvider']

@@ -84,7 +84,7 @@ def detect(system, det, seq, frames, out):
         rows += [(n, -1, *b) for b in boxes.tolist()]
     df = pd.DataFrame(rows, columns=["frame", "track_id", "x", "y", "w", "h", "score"])
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.round(2).to_csv(path, index=False)
+    df.round({"x": 2, "y": 2, "w": 2, "h": 2, "score": 4}).to_csv(path, index=False)  # 2-dp scores flip thresholds
     path.with_suffix(".json").write_text(json.dumps({"latency_ms": lat}))
     return df, lat
 

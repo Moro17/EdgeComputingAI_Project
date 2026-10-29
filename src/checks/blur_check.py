@@ -18,17 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from judge.arcface import Judge, eye_align, templates  # noqa: E402
 from loaders.chokepoint import frame_path, load_gt  # noqa: E402
-from systems.anonymize import blur, scale_boxes  # noqa: E402
-
-
-def strong_blur(img, xyxy):
-    out = img.copy()
-    for x1, y1, x2, y2 in xyxy:
-        if x2 > x1 and y2 > y1:
-            k = max(3, max(x2 - x1, y2 - y1) | 1)  # kernel = full box side
-            for _ in range(3):
-                out[y1:y2, x1:x2] = cv2.GaussianBlur(out[y1:y2, x1:x2], (k, k), 0)
-    return out
+from systems.anonymize import blur, scale_boxes, weak_blur  # noqa: E402
 
 
 def pixelate(img, xyxy, cells=6):
@@ -47,7 +37,7 @@ def solid(img, xyxy):
     return out
 
 
-OPS = {"blur": blur, "strong_blur": strong_blur, "pixelate": pixelate, "solid": solid}
+OPS = {"blur": blur, "weak_blur": weak_blur, "pixelate": pixelate, "solid": solid}
 
 
 def main():
