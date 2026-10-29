@@ -1,0 +1,7 @@
+system,threshold,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet_ort,0.9,0.9565,160,48.125,0.625,86.2069,18,1.7,0.9949,0.9291,182.7629,4.5739,7.5986,['CPUExecutionProvider']
+yunet_fp16,0.9,0.9566,160,48.75,0.625,86.2069,18,1.6938,0.9949,0.9292,218.5297,4.3014,5.8788,['CPUExecutionProvider']
+scrfd_500m,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1119,151.0079,6.369,8.2153,['CPUExecutionProvider']
+scrfd_500m_fp16,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1119,149.6947,6.3943,8.3951,['CPUExecutionProvider']
+yolov8n_face,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1469,59.6739,15.9676,19.9123,['CPUExecutionProvider']
+yolov8n_face_fp16,0.5,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.147,60.3582,15.9371,18.7621,['CPUExecutionProvider']
