@@ -23,7 +23,7 @@ def ort_providers():
 
 def used_providers(net):
     """Providers the ONNX session really ended up on (ORT falls back to CPU at run time on CUDA errors)."""
-    s = getattr(net, "session", None) or getattr(net, "sess", None)
+    s = net if hasattr(net, "get_providers") else getattr(net, "session", None) or getattr(net, "sess", None)
     return s.get_providers() if s is not None else None
 
 
@@ -75,6 +75,36 @@ class Deface:
         return xyxy_to_xywh(self.net(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), threshold=FLOOR)[0])
 
 
+class YoloFace:
+    """YOLOv8n-face (akanametov/yolo-face, WIDER FACE, AGPL-3.0). ONNX export with NMS inside:
+    output (1, 300, 21) = x1, y1, x2, y2, score, class, 5 landmarks x (x, y, conf), in letterboxed 640x640 pixels."""
+
+    URL = "https://github.com/akanametov/yolo-face/releases/download/1.0.0/yolov8n-face.onnx"
+    SIZE = 640
+
+    def __init__(self):
+        import onnxruntime as ort
+
+        path = MODELS / "yolov8n-face.onnx"
+        if not path.exists():
+            MODELS.mkdir(exist_ok=True)
+            urllib.request.urlretrieve(self.URL, path)
+        self.net = ort.InferenceSession(str(path), providers=ort_providers())
+
+    def __call__(self, bgr):
+        h, w = bgr.shape[:2]
+        r = min(self.SIZE / w, self.SIZE / h)
+        nw, nh = round(w * r), round(h * r)
+        px, py = (self.SIZE - nw) // 2, (self.SIZE - nh) // 2  # ultralytics centres the letterbox
+        canvas = np.full((self.SIZE, self.SIZE, 3), 114, np.uint8)
+        canvas[py : py + nh, px : px + nw] = cv2.resize(bgr, (nw, nh), interpolation=cv2.INTER_LINEAR)
+        x = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB).transpose(2, 0, 1)[None].astype(np.float32) / 255
+        out = self.net.run(None, {"images": x})[0][0]
+        out = out[out[:, 4] >= FLOOR]
+        boxes = (out[:, :4] - [px, py, px, py]) / r
+        return xyxy_to_xywh(np.concatenate([boxes, out[:, 4:5]], 1))
+
+
 class EgoBlur:
     def __init__(self, path):
         import torch
@@ -98,6 +128,7 @@ SYSTEMS = {
     "yunet_int8": (lambda _: YuNet(int8=True), 0.9),
     "scrfd_500m": (lambda _: SCRFD("buffalo_s", "det_500m.onnx"), 0.5),
     "scrfd_10g": (lambda _: SCRFD("buffalo_l", "det_10g.onnx"), 0.5),
+    "yolov8n_face": (lambda _: YoloFace(), 0.5),
     "deface": (lambda _: Deface(), 0.2),
     "egoblur": (lambda p: EgoBlur(p), 0.9),
 }

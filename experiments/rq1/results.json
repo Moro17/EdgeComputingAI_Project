@@ -1,5 +1,5 @@
 {
-  "created": "2026-10-29T07:56:42.040976+00:00",
+  "created": "2026-10-29T08:10:45.143061+00:00",
   "config": {
     "seqs": [
       "P2E_S1_C1.1",
@@ -21,6 +21,7 @@
       "yunet_int8": 0.9,
       "scrfd_500m": 0.5,
       "scrfd_10g": 0.5,
+      "yolov8n_face": 0.5,
       "deface": 0.2,
       "egoblur": 0.9
     },
@@ -111,6 +112,23 @@
       "fps": 38.720915179058856,
       "p50_ms": 25.774297999305418,
       "p95_ms": 26.890772599472257,
+      "device": "['CPUExecutionProvider']"
+    },
+    {
+      "system": "yolov8n_face",
+      "threshold": 0.5,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1468831678134062,
+      "fps": 41.10275812571551,
+      "p50_ms": 23.673167001106776,
+      "p95_ms": 27.389149798545986,
       "device": "['CPUExecutionProvider']"
     }
   ]
