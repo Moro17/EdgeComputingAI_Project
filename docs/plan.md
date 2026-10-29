@@ -114,6 +114,17 @@ end-to-end FPS and p50/p95 ms on the board. On clean ChokePoint and on the stres
 ## Phase 9: demo and write-up
 
 - `demo.py` on the board: video file, NPU, blur, HDMI, FPS overlay, stock vs fine-tuned toggle.
+- **Measured (2026-10-30, stock models, 277 s clip of 3 test sequences, whole loop = decode + detect + fast_blur + overlay + display):**
+
+| Model | FPS | read | pre | npu | post | blur | show |
+|---|---|---|---|---|---|---|---|
+| YuNet 480x640 | 26.0 (25.5-26.5) | 1.0 | 8.0 | 14.2 | 4.6 | 0-2 | 0.7 |
+| YOLOv8n-face 320 | 21.8 (21.3-22.3) | 1.0 | 8.4 | 22.4 | 0.7 | 0-2 | 0.7 |
+
+  YuNet meets the 25 FPS target. YOLO-320 misses it: npu 22.4 ms plus pre 8.4 ms (letterbox + float conversion) is over
+  the detector's share. `cv2.imshow` (GTK) costs 25 ms per frame on the board (16 FPS), so the demo shows through a
+  GStreamer waylandsink (0.7 ms). `fullscreen=true` hangs that sink; the picture is g2d-scaled to 1440x1080 instead.
+  Start: `./run_demo.sh --video demo.mp4 --loop --models yunet_480x640_int8.tflite <fine-tuned.tflite> ...` (`--switch-every 10`).
 - README dataset section, results table, push to the team repo.
 
 ## Deliverable 1 (2026-11-03 16:00)
