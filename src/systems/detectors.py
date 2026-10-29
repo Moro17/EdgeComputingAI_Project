@@ -227,9 +227,9 @@ SYSTEMS = {
     "scrfd_500m_q8": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "int8"), 0.5),
     "yolov8n_face_fp16": (lambda _: YoloFace("fp16"), 0.5),
     "yolov8n_face_q8": (lambda _: YoloFace("int8"), 0.5),
-    # board NPU, INT8 TFLite at three input sizes; 0.49 = the saturated score bucket (see src/board_bench.py)
-    **{f"yolov8n_face_{s}_npu": (lambda _: BoardOnly(), 0.49) for s in (320, 416, 640)},
-    "yunet_608x800_npu": (lambda _: BoardOnly(), 0.9),
+    # board NPU, INT8 TFLite at several input sizes; 0.49 = the saturated score bucket (see src/board_bench.py)
+    **{f"yolov8n_face_{s}_npu": (lambda _: BoardOnly(), 0.49) for s in (256, 320, 416, 640)},
+    **{f"yunet_{s}_npu": (lambda _: BoardOnly(), 0.9) for s in ("608x800", "480x640", "384x512", "320x416")},
     "deface": (lambda _: Deface(), 0.2),
     "egoblur": (lambda p: EgoBlur(p), 0.9),
 }
