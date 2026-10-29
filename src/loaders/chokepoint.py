@@ -45,6 +45,7 @@ def load_gt(seq, data=DATA):
         (int(f.get("number")), int(p.get("id")), *(float(p.find(e).get(k)) for e in ("leftEye", "rightEye") for k in "xy"))
         for f in ET.parse(data / "groundtruth" / f"{seq}.xml").getroot().iter("frame")
         for p in f.iter("person")
+        if p.find("leftEye") is not None and p.find("rightEye") is not None  # P2E_S3_C1.1 has 2 persons without eyes
     ]
     df = pd.DataFrame(rows, columns=["frame", "identity", "lx", "ly", "rx", "ry"])
     d = np.hypot(df.rx - df.lx, df.ry - df.ly)

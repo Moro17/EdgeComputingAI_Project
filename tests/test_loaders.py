@@ -7,10 +7,12 @@ from types import SimpleNamespace
 
 import cv2
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import splits  # noqa: E402
+import train_labels  # noqa: E402
 from judge.arcface import align, templates  # noqa: E402
 from loaders import musicvideo as mv  # noqa: E402
 
@@ -66,6 +68,27 @@ def test_splits_are_disjoint_and_test_is_the_cached_benchmark():
     assert splits.TEST == json.loads((ROOT / "experiments/board/data_config.json").read_text())["seqs"]
     assert (len(splits.TRAIN), len(splits.VAL), len(splits.TEST)) == (24, 36, 12)
     assert all(s.startswith("P1") for s in splits.TRAIN) and splits.split_of("P2E_S5_C1.1") == "calib"
+
+
+def test_label_lines_box_and_missing_landmarks():
+    faces = pd.DataFrame([dict(x=10, y=20, w=30, h=40, kps=None)])
+    lines = train_labels.label_lines("P1E_S1_C1/00000100.jpg", 800, 600, faces)
+    assert lines[0] == "# P1E_S1_C1/00000100.jpg 800 600"
+    v = lines[1].split()
+    assert v[:4] == ["10.0", "20.0", "40.0", "60.0"] and v[4:] == ["-1.0"] * 15
+
+
+def test_label_lines_landmarks_are_x_y_vis():
+    kps = np.arange(10, dtype=float).reshape(5, 2)
+    v = train_labels.label_lines("a/b.jpg", 800, 600, pd.DataFrame([dict(x=10, y=20, w=30, h=40, kps=kps)]))[1].split()
+    assert v[4:7] == ["0.0", "1.0", "1.0"] and v[16:19] == ["8.0", "9.0", "1.0"]
+
+
+def test_frame_with_an_unlabelled_face_is_dropped():
+    gt = np.array([[100, 100, 50, 60]], float)
+    assert not train_labels.unlabelled(gt, np.array([[102, 98, 49, 62, 0.95]]))
+    assert train_labels.unlabelled(gt, np.array([[102, 98, 49, 62, 0.95], [500, 80, 40, 50, 0.9]]))
+    assert not train_labels.unlabelled(gt, np.array([[500, 80, 40, 50, 0.3]]))  # low-score SCRFD box ignored
 
 
 if __name__ == "__main__":
