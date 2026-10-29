@@ -1,0 +1,39 @@
+{
+  "op": "blur",
+  "n": 2000,
+  "threshold": 0.17748527228832245,
+  "pct_recognised_clean": 100.0,
+  "pct_recognised": 37.3,
+  "pct_recognised_wrong_identity": 0.2,
+  "pct_rank1_blur": 58.85,
+  "pct_rank1_chance": 3.4482758620689653,
+  "mean_sim_clean": 0.6774214506149292,
+  "mean_sim_blur": 0.1576673537492752,
+  "mean_sim_blur_wrong": 0.01944270357489586,
+  "by_face_width": [
+    {
+      "size": "<40px",
+      "n": 457,
+      "pct_clean": 100.0,
+      "pct_blur": 20.350000381469727
+    },
+    {
+      "size": "40-60px",
+      "n": 792,
+      "pct_clean": 100.0,
+      "pct_blur": 39.77000045776367
+    },
+    {
+      "size": "60-80px",
+      "n": 371,
+      "pct_clean": 100.0,
+      "pct_blur": 39.08000183105469
+    },
+    {
+      "size": ">=80px",
+      "n": 380,
+      "pct_clean": 100.0,
+      "pct_blur": 50.790000915527344
+    }
+  ]
+}

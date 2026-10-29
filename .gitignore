@@ -11,3 +11,7 @@ emb/
 dets/
 scores/
 poses/
+# face crops from the dataset: never commit
+*.jpg
+*.png
+!docs/**/*.png
