@@ -1,0 +1,63 @@
+# Why YOLOv8n-face at 320 is not our edge detector
+
+Decision (2026-10-29): YuNet is the edge baseline we fine-tune and deploy. YOLOv8n-face stays in every table as the
+"big detector" reference: 640 FP32 is the accuracy ceiling, and 320 INT8 on the board is big YOLO at edge cost.
+The main research question becomes: can a small fine-tuned YuNet with the recovery pipeline match a big YOLO?
+
+All numbers below are from the 12 test sequences (ChokePoint P2 S1, 8,957 GT faces, 800x600 frames), in
+`experiments/board/results.csv`.
+
+## 1. Speed: no room left for the pipeline at 25 FPS
+
+25 FPS gives 40 ms per frame for the whole pipeline (decode + detect + track/recovery + blur). Decode, tracking
+and blur take an estimated 8-10 ms, so the detector gets about 30 ms (decode is not yet measured; reading the
+frames as JPEGs costs 20-28 ms on the board CPU today).
+
+| Model on the board (INT8, NPU) | Detector ms (pre + NPU + post, p50) | NPU only (benchmark_model) |
+|---|---|---|
+| YOLOv8n-face 320 | 32.9 | 19.8 |
+| YOLOv8n-face 416 | 49.4 | - |
+| YOLOv8n-face 640 | 104.0 | - |
+| YuNet 608x800 | 32.2 | 17.7 |
+
+YOLO at 320 is already over the ~30 ms detector share and leaves 7 ms of the 40 ms for everything else, so
+none of the recovery pipeline (tracker, pose fallback) fits next to it. Measured end to end with JPEG reading,
+the YOLO-320 loop runs at about 17 FPS. 416 and 640 are far over. Making YOLO faster means going below 320,
+which makes the face-size problem in 2 worse.
+
+Caveat: YuNet at full resolution costs the same today, so speed alone does not rule YOLO out. YuNet
+qualifies only if it fits the ~30 ms detector share at a smaller input, with room for the pipeline; that
+sweep is still to be run.
+YuNet has the room to get there: about 75k parameters against about 3M for YOLOv8n-face, and it already
+processes 4.75x more pixels than YOLO-320 in the same time.
+
+## 2. Resolution: 320 shrinks faces toward the detection limit
+
+| YOLO input | Scale | Median face after resize | Faces narrower than 16 px |
+|---|---|---|---|
+| 640 | 0.80 | 42 px | 0 |
+| 416 | 0.52 | 28 px | 9 |
+| 320 | 0.40 | 21 px | 2,014 (22%) |
+
+On clean video YOLO-320 still reaches recall 0.999 and 0% identities exposed, so this costs nothing on clean
+video. But it leaves no margin: under blur, low light or smaller faces (the stress tier), these faces are lost
+first. Going below 320 to save time would make this worse. The 4:3 frame also fills only 320x240 of the
+320x320 input, so a quarter of the NPU's work is padding.
+
+## 3. Confidence: the INT8 score is saturated
+
+In our INT8 TFLite export, every detected face scores the same value, 0.4986. The score head's activation is
+quantized with scale 0.249 and zero point 127, so its largest value is 0. The board model therefore gives no
+confidence signal, and RQ3 (choosing synthetic replacement or conservative masking by confidence) needs one.
+Recalibrating could fix this, but it is one more reason the current board model cannot be used as is.
+
+## 4. License
+
+The YOLOv8n-face weights (akanametov/yolo-face, Ultralytics) are AGPL-3.0. YuNet (OpenCV Zoo) is MIT, and it
+ships in OpenCV as `cv2.FaceDetectorYN`, the default face detector on edge devices.
+
+## What would reverse this
+
+If YOLO at a smaller input (256) leaves room for the pipeline in 40 ms and still exposes 0% on the stress
+tier, the budget rule picks YOLO. The finding would then be "a good detector is enough", and the paper would
+say so. The rule is: lowest exposure under the detector's share of 40 ms, measured on the board.

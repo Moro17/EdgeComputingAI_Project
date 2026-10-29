@@ -82,14 +82,13 @@ experiments/     # configs + results
 ```
 
 ## Next tasks
-1. Loaders: ChokePoint + PLUSFiaQ -> unified GT CSV (check annotation format first).
-2. YuNet runner (FP32/INT8) and deface runner producing system CSVs + anonymized frames.
-3. Coverage matcher + ArcFace judge + 1% FAR threshold.
-4. Headline table for RQ1: frame recall vs % identities leaked vs max exposed run.
+Phases, gates and the ChokePoint train/val/test split: docs/plan.md.
 
 ## Decisions
 - Real-time target: 25 FPS on the i.MX 8M Plus, i.e. a 40 ms budget per frame for the WHOLE pipeline
-  (decode + detect + track/recovery + blur), not the detector alone. Provisional; revisit with Moro after board latency numbers.
+  (decode + detect + track/recovery + blur), not the detector alone.
+- Edge detector: YuNet (fine-tuned), not YOLOv8n-face 320; YOLO stays as the "big detector" reference.
+  Main question: can a small fine-tuned YuNet + pipeline match a big YOLO? Reasons: docs/decisions/why-not-yolo320.md.
 
 ## Open decisions (settle with Moro)
 - RQ3 scope if synthetic replacement is too heavy for the board (blur vs face bank vs masking).
