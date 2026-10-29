@@ -7,6 +7,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from loaders.chokepoint import session  # default leave-out grouping
+
 ARC_EYES = np.array([[38.2946, 51.6963], [73.5318, 51.5014]])  # ArcFace 112x112 template eye points
 
 
@@ -17,6 +19,16 @@ def eye_align(img, left, right):
     t = b0 - s * a0
     m = np.array([[s.real, -s.imag, t.real], [s.imag, s.real, t.imag]])
     return cv2.warpAffine(img, m, (112, 112), borderValue=0)
+
+
+def align(img, r):
+    """Judge crop for a GT row: eye alignment when the row has eyes, else the GT box resized to 112x112.
+    shortcut: box-only crops are a weaker attack than eye-aligned ones; report how many faces needed it."""
+    if not np.isnan(r.lx):
+        return eye_align(img, (r.lx, r.ly), (r.rx, r.ry))
+    x1, y1 = max(int(r.x), 0), max(int(r.y), 0)
+    crop = img[y1 : int(r.y + r.h), x1 : int(r.x + r.w)]
+    return cv2.resize(crop, (112, 112)) if crop.size else np.zeros((112, 112, 3), np.uint8)
 
 
 class Judge:
@@ -38,16 +50,10 @@ class Judge:
         return e / np.linalg.norm(e, axis=1, keepdims=True)
 
 
-def session(seq):
-    """Cameras C1-C3 of one recording see the same moment: 'P2E_S1_C2.1' -> 'P2E_S1.1'."""
-    base, _, rest = seq.partition("_C")
-    return base + rest[1:]
-
-
-def templates(emb, seq):
+def templates(emb, seq, session=session):
     """Leave-session-out gallery: identity -> mean embedding over sequences from OTHER sessions.
 
-    emb: {seq: (identities array, embeddings array)} of clean GT faces.
+    emb: {seq: (identities array, embeddings array)} of clean GT faces. session: the dataset's leave-out grouping.
     shortcut: plain mean over every gallery face, no quality selection; add top-k by quality if TAR is low.
     """
     ids = np.concatenate([emb[s][0] for s in emb if session(s) != session(seq)])
@@ -55,5 +61,5 @@ def templates(emb, seq):
     out = {}
     for i in np.unique(ids):
         t = e[ids == i].mean(0)
-        out[int(i)] = t / np.linalg.norm(t)
+        out[i.item()] = t / np.linalg.norm(t)  # int (ChokePoint) or str ('<video>:<id>')
     return out

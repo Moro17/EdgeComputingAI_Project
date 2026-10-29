@@ -21,6 +21,17 @@ DATA = Path(os.environ.get("ECA_DATA", ROOT / "data")) / "chokepoint"  # ECA_DAT
 BOX_W, BOX_UP, BOX_DOWN = 2.2, 1.1, 1.9
 
 
+def sequences(data=DATA):
+    """Every sequence with frames and GT on disk."""
+    return sorted(p.name for p in (data / "frames").iterdir() if (data / "groundtruth" / f"{p.name}.xml").exists())
+
+
+def session(seq):
+    """Cameras C1-C3 of one recording see the same moment: 'P2E_S1_C2.1' -> 'P2E_S1.1'."""
+    base, _, rest = seq.partition("_C")
+    return base + rest[1:]
+
+
 def frame_numbers(seq, data=DATA):
     return [int(f.get("number")) for f in ET.parse(data / "groundtruth" / f"{seq}.xml").getroot().iter("frame")]
 

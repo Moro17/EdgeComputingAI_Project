@@ -1,4 +1,4 @@
-"""RQ1 benchmark: per-frame face anonymizers on ChokePoint, scored at identity level.
+"""RQ1 benchmark: per-frame face anonymizers on a dataset (--dataset, default ChokePoint), scored at identity level.
 
 Stages (each cached under --out, so an interrupted run resumes where it stopped):
   1. enroll  emb/<seq>.npz           clean GT faces embedded by the ArcFace judge
@@ -11,8 +11,10 @@ Usage:
   python src/benchmark.py --out results/rq1                          # all systems, every GT sequence on disk
   python src/benchmark.py --systems yunet deface --max-frames 200 --out results/smoke
   python src/benchmark.py --egoblur /path/ego_blur_face.jit --thr yunet=0.6 --out results/rq1
+  python src/benchmark.py --dataset musicvideo --out experiments/musicvideo   # see src/loaders/musicvideo.py
 """
 import argparse
+import importlib
 import json
 import platform
 import time
@@ -23,8 +25,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from judge.arcface import Judge, eye_align, session, templates
-from loaders.chokepoint import DATA, frame_numbers, frame_path, load_gt
+from judge.arcface import Judge, align, templates
 from metrics.exposure import PROTECTED_COVERAGE, coverage, summarise
 from systems.anonymize import MASK_SCALE, blur, box_mask, scale_boxes
 from systems.detectors import FLOOR, SYSTEMS, used_providers
@@ -32,32 +33,28 @@ from systems.detectors import FLOOR, SYSTEMS, used_providers
 FAR = 0.01
 
 
-def default_seqs():
-    return sorted(p.name for p in (DATA / "frames").iterdir() if (DATA / "groundtruth" / f"{p.name}.xml").exists())
-
-
-def enroll(judge, seq, frames, out):
+def enroll(ds, judge, seq, frames, out):
     path = out / "emb" / f"{seq}.npz"
     if not path.exists():
-        gt = load_gt(seq)
+        gt = ds.load_gt(seq)
         gt = gt[gt.frame.isin(frames)]
         crops = []
         for n, g in gt.groupby("frame"):
-            img = cv2.imread(str(frame_path(seq, n)))
-            crops += [eye_align(img, (r.lx, r.ly), (r.rx, r.ry)) for r in g.itertuples()]
+            img = cv2.imread(str(ds.frame_path(seq, n)))
+            crops += [align(img, r) for r in g.itertuples()]
         path.parent.mkdir(parents=True, exist_ok=True)
-        np.savez(path, ids=gt.identity.to_numpy(), emb=judge.embed(crops))
+        np.savez(path, ids=np.asarray(gt.identity.tolist()), emb=judge.embed(crops))
     z = np.load(path)
     return z["ids"], z["emb"]
 
 
-def calibrate(emb, out):
+def calibrate(emb, session, out):
     """Threshold at FAR on clean faces vs other identities' leave-session-out templates; TAR as a sanity check."""
     path = out / "judge.json"
     if not path.exists():
         genuine, impostor = [], []
         for seq, (ids, e) in emb.items():
-            t = templates(emb, seq)
+            t = templates(emb, seq, session)
             keys = np.array(sorted(t))
             sims = e @ np.stack([t[k] for k in keys]).T
             own = ids[:, None] == keys[None, :]
@@ -70,13 +67,13 @@ def calibrate(emb, out):
     return json.loads(path.read_text())
 
 
-def detect(system, det, seq, frames, out):
+def detect(ds, system, det, seq, frames, out):
     path = out / "dets" / system / f"{seq}.csv"
     if path.exists():
         return pd.read_csv(path), json.loads(path.with_suffix(".json").read_text())["latency_ms"]
     rows, lat = [], []
     for i, n in enumerate(frames):
-        img = cv2.imread(str(frame_path(seq, n)))
+        img = cv2.imread(str(ds.frame_path(seq, n)))
         t0 = time.perf_counter()
         boxes = det(img)
         if i >= 5:  # skip warm-up
@@ -89,15 +86,15 @@ def detect(system, det, seq, frames, out):
     return df, lat
 
 
-def score(judge, dets, thr, seq, frames, tmpl, out, tag):
+def score(ds, judge, dets, thr, seq, frames, tmpl, out, tag):
     path = out / "scores" / tag / f"{seq}.csv"
     if path.exists():
         return pd.read_csv(path), json.loads(path.with_suffix(".json").read_text())["masked"]
-    gt = load_gt(seq)
+    gt = ds.load_gt(seq)
     gt = gt[gt.frame.isin(frames)]
     gt_by_frame = dict(list(gt.groupby("frame")))
     det_by_frame = dict(list(dets[dets.score >= thr].groupby("frame")))
-    shape = cv2.imread(str(frame_path(seq, frames[0]))).shape
+    shape = cv2.imread(str(ds.frame_path(seq, frames[0]))).shape
     keys = sorted(tmpl)
     null_of = {k: keys[(i + 1) % len(keys)] for i, k in enumerate(keys)}  # a fixed wrong identity per person
 
@@ -115,8 +112,8 @@ def score(judge, dets, thr, seq, frames, tmpl, out, tag):
             row = {"seq": seq, "frame": n, "identity": r.identity, "coverage": cov, "protected": cov >= PROTECTED_COVERAGE}
             if not row["protected"] and r.identity in tmpl:
                 if anon is None:
-                    anon = blur(cv2.imread(str(frame_path(seq, n))), xyxy)
-                crops.append(eye_align(anon, (r.lx, r.ly), (r.rx, r.ry)))
+                    anon = blur(cv2.imread(str(ds.frame_path(seq, n))), xyxy)
+                crops.append(align(anon, r))
                 row["probe"] = len(crops) - 1
             rows.append(row)
 
@@ -140,6 +137,7 @@ def score(judge, dets, thr, seq, frames, tmpl, out, tag):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--dataset", default="chokepoint", choices=["chokepoint", "musicvideo"], help="loader in src/loaders/")
     p.add_argument("--systems", nargs="+", default=list(SYSTEMS), choices=list(SYSTEMS))
     p.add_argument("--seqs", nargs="+", default=None, help="default: every sequence with frames and GT on disk")
     p.add_argument("--max-frames", type=int, default=None, help="first N frames per sequence (smoke tests)")
@@ -152,22 +150,24 @@ def main():
     systems = [s for s in args.systems if s != "egoblur" or (args.egoblur and args.egoblur.exists())]
     if systems != args.systems:
         print("skip egoblur: pass --egoblur with the path to ego_blur_face.jit")
-    seqs = args.seqs or default_seqs()
-    if len({session(s) for s in seqs}) < 2:
+    ds = importlib.import_module(f"loaders.{args.dataset}")
+    seqs = args.seqs or ds.sequences()
+    if len({ds.session(s) for s in seqs}) < 2:
         p.error("need sequences from >= 2 recording sessions: each sequence is judged against a gallery from the others")
-    frames = {s: frame_numbers(s)[: args.max_frames] for s in seqs}
+    frames = {s: ds.frame_numbers(s)[: args.max_frames] for s in seqs}
     args.out.mkdir(parents=True, exist_ok=True)
-    data_cfg, cfg_path = {"seqs": seqs, "max_frames": args.max_frames}, args.out / "data_config.json"
+    data_cfg = {"seqs": seqs, "max_frames": args.max_frames} | ({"dataset": args.dataset} if args.dataset != "chokepoint" else {})
+    cfg_path = args.out / "data_config.json"
     if cfg_path.exists() and json.loads(cfg_path.read_text()) != data_cfg:
         p.error(f"{args.out} was built with {cfg_path.read_text()}; caches would mix. Use a new --out.")
     cfg_path.write_text(json.dumps(data_cfg))
 
     judge = Judge()
-    emb = {s: enroll(judge, s, frames[s], args.out) for s in seqs}
-    cal = calibrate(emb, args.out)
+    emb = {s: enroll(ds, judge, s, frames[s], args.out) for s in seqs}
+    cal = calibrate(emb, ds.session, args.out)
     judge.threshold = cal["threshold"]
     print(f"judge: threshold {cal['threshold']:.3f} at {FAR:.0%} FAR, clean TAR {cal['tar_clean']:.1%}")
-    tmpl = {s: templates(emb, s) for s in seqs}
+    tmpl = {s: templates(emb, s, ds.session) for s in seqs}
 
     table = []
     for system in systems:
@@ -175,8 +175,8 @@ def main():
         faces, masked, lat = [], [], []
         for s in seqs:
             print(f"{system} {s}", flush=True)
-            d, l = detect(system, det, s, frames[s], args.out)
-            f, m = score(judge, d, thr[system], s, frames[s], tmpl[s], args.out, f"{system}_t{thr[system]}")
+            d, l = detect(ds, system, det, s, frames[s], args.out)
+            f, m = score(ds, judge, d, thr[system], s, frames[s], tmpl[s], args.out, f"{system}_t{thr[system]}")
             faces.append(f)
             masked += m
             lat += l
@@ -188,7 +188,7 @@ def main():
     df.round(4).to_csv(args.out / "results.csv", index=False)
     (args.out / "results.json").write_text(json.dumps({
         "created": datetime.now(timezone.utc).isoformat(),
-        "config": {"seqs": seqs, "max_frames": args.max_frames, "thresholds": thr, "det_floor": FLOOR,
+        "config": {"dataset": args.dataset, "seqs": seqs, "max_frames": args.max_frames, "thresholds": thr, "det_floor": FLOOR,
                    "mask_scale": MASK_SCALE, "protected_coverage": PROTECTED_COVERAGE, "far": FAR},
         "judge": cal | {"providers": used_providers(judge.net)},
         "host": {"platform": platform.platform(), "processor": platform.processor(), "gpu": gpu_name()},
