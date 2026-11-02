@@ -1,0 +1,3 @@
+system,threshold,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet_480x640_npu,0.6,0.9999,160,0.0,0.0,0.0,0,0.0,0.0,1.1035,49.4848,20.0768,20.832,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu,0.7,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1076,46.2788,21.4181,22.2141,imx8mp-npu-vx (board_bench.py)

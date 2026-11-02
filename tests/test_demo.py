@@ -21,7 +21,8 @@ def test_overlay_text():
 
 
 def test_default_thr():
-    assert demo.default_thr("yunet_480x640_int8.tflite") == 0.9
+    assert demo.default_thr("yunet_480x640_int8.tflite") == 0.6
+    assert demo.default_thr("yunet_ft_480x640_int8.tflite") == 0.7
     assert demo.default_thr("yolov8n-face_320_int8.tflite") == 0.49
 
 

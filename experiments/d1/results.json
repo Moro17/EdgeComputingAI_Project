@@ -1,0 +1,102 @@
+{
+  "created": "2026-11-02T18:46:05.162370+00:00",
+  "config": {
+    "dataset": "chokepoint",
+    "seqs": [
+      "P2E_S1_C1.1",
+      "P2E_S1_C1.2",
+      "P2E_S1_C2.1",
+      "P2E_S1_C2.2",
+      "P2E_S1_C3.1",
+      "P2E_S1_C3.2",
+      "P2L_S1_C1.1",
+      "P2L_S1_C1.2",
+      "P2L_S1_C2.1",
+      "P2L_S1_C2.2",
+      "P2L_S1_C3.1",
+      "P2L_S1_C3.2"
+    ],
+    "max_frames": null,
+    "thresholds": {
+      "yunet": 0.9,
+      "yunet_int8": 0.9,
+      "scrfd_500m": 0.5,
+      "scrfd_10g": 0.5,
+      "yolov8n_face": 0.5,
+      "yunet_ort": 0.9,
+      "yunet_fp16": 0.9,
+      "yunet_q8": 0.9,
+      "yunet_ft": 0.9,
+      "scrfd_500m_fp16": 0.5,
+      "scrfd_500m_q8": 0.5,
+      "yolov8n_face_fp16": 0.5,
+      "yolov8n_face_q8": 0.5,
+      "yolov8n_face_256_npu": 0.49,
+      "yolov8n_face_320_npu": 0.49,
+      "yolov8n_face_416_npu": 0.49,
+      "yolov8n_face_640_npu": 0.49,
+      "yunet_608x800_npu": 0.9,
+      "yunet_480x640_npu": 0.6,
+      "yunet_384x512_npu": 0.9,
+      "yunet_320x416_npu": 0.9,
+      "yunet_ft_480x640_npu": 0.7,
+      "deface": 0.2,
+      "egoblur": 0.9
+    },
+    "det_floor": 0.05,
+    "mask_scale": 1.3,
+    "protected_coverage": 0.8,
+    "far": 0.01
+  },
+  "judge": {
+    "far": 0.01,
+    "threshold": 0.17748527228832245,
+    "tar_clean": 0.999888355476164,
+    "n_genuine": 8957,
+    "n_impostor": 250796,
+    "providers": [
+      "CPUExecutionProvider"
+    ]
+  },
+  "host": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "processor": "arm",
+    "gpu": null
+  },
+  "results": [
+    {
+      "system": "yunet_480x640_npu",
+      "threshold": 0.6,
+      "frame_recall": 0.999888355476164,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1035461742899593,
+      "fps": 49.484754927702404,
+      "p50_ms": 20.07676900007027,
+      "p95_ms": 20.831983999869408,
+      "device": "imx8mp-npu-vx (board_bench.py)"
+    },
+    {
+      "system": "yunet_ft_480x640_npu",
+      "threshold": 0.7,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1075673348767436,
+      "fps": 46.27876524105207,
+      "p50_ms": 21.418053000161308,
+      "p95_ms": 22.214097600135574,
+      "device": "imx8mp-npu-vx (board_bench.py)"
+    }
+  ]
+}

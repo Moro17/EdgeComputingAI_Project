@@ -33,7 +33,9 @@ def is_yunet(name):
 
 
 def default_thr(name):
-    return 0.9 if is_yunet(name) else 0.49  # YOLO's INT8 score saturates at ~0.4986 (board_bench.py)
+    if not is_yunet(name):
+        return 0.49  # YOLO's INT8 score saturates at ~0.4986 (board_bench.py)
+    return 0.7 if "yunet_ft" in Path(name).name else 0.6  # chosen on val, INT8 480x640 (docs/plan.md Phase 5)
 
 
 def load(path, npu=True):
@@ -71,7 +73,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--video", required=True)
     p.add_argument("--models", nargs="+", required=True)
-    p.add_argument("--thr", type=float, nargs="+", default=None, help="one per model; default 0.9 YuNet, 0.49 YOLO")
+    p.add_argument("--thr", type=float, nargs="+", default=None, help="one per model; default 0.6 stock YuNet, 0.7 fine-tuned (yunet_ft*), 0.49 YOLO")
     p.add_argument("--loop", action="store_true")
     p.add_argument("--switch-every", type=float, default=10, help="seconds per model, 0 = only on key m")
     p.add_argument("--cpu", action="store_true", help="no NPU (Mac test)")
