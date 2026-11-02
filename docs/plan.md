@@ -87,11 +87,48 @@ end-to-end FPS and p50/p95 ms on the board. On clean ChokePoint and on the stres
   with degradation augmentation (blur, low light, downscale).
 - Pick checkpoint and threshold on val. Export ONNX, check it matches the PyTorch model.
 
+**Outcome (2026-11-02):** 20 epochs on a Colab T4 (~12.5 min/epoch, 25,504 samples/epoch; loss 2.42 -> 2.16,
+lr 0.001 then x0.1 at 15 and 18). The trainer's `yunet_n` has 59 convolutions against 53 in the OpenCV 2023mar
+release, so the fine-tuned model is a slightly larger network: NPU-only 13.0 ms against 11.6 ms (benchmark_model).
+
+Val, INT8 480x640 (the board's model files, run on the Mac CPU with `board_bench.py --cpu`), % identities exposed
+(29 identities, so one person = 3.4%):
+
+| Threshold | Stock | FT epoch 8 | FT epoch 13 |
+|---|---|---|---|
+| 0.9 | 100 | 100 | 100 |
+| 0.8 | 10.3 | 20.7 | 13.8 |
+| 0.7 | 6.9 | 10.3 | 3.4 |
+| 0.6 | 3.4 | 3.4 | 3.4 |
+| 0.5 | 3.4 | 3.4 | 3.4 |
+
+- The operating threshold matters far more than fine-tuning: at 0.9 (OpenCV's default, used in Phase 1) every model
+  exposes every identity on val; at 0.5-0.7 one person. Phase 1's 86% exposure is mostly the threshold.
+- Chosen thresholds: stock 0.6, fine-tuned 0.7 (lowest exposure, ties to the higher threshold).
+- Epoch 20 (final) is the deployed model; it was not run on val for lack of time, and uses epoch 13's threshold 0.7.
+  shortcut: run epoch 20 on val and confirm 0.7 before the paper numbers.
+
 ## Phase 5: quantize and benchmark the detector
 
 - FP32 and FP16: Mac/CPU reference rows (the NPU runs integer models only).
 - INT8 TFLite for the NPU via onnx2tf, calibrated on S5. Check the score is not saturated.
 - Benchmark on test: Mac FP32/FP16, board INT8. Fills the "per-frame" column.
+
+**Outcome (board INT8 480x640, test split, `experiments/d1/`):**
+
+| System | Threshold | Detector p50 ms (pre / npu / post) | Frame recall | % identities exposed | Max run |
+|---|---|---|---|---|---|
+| Stock | 0.9 | 20.1 (5.3 / 13.0 / 2.0) | 0.944 | 86.2 | 32 |
+| Fine-tuned (epoch 20) | 0.9 | 21.4 (5.2 / 14.3 / 2.0) | 0.992 | 48.3 | 9 |
+| Stock | 0.6 | 20.1 | 0.9999 | 0.0 | 0 |
+| Fine-tuned (epoch 20) | 0.7 | 21.4 | 1.000 | 0.0 | 0 |
+
+- `board_bench.YuNetTFLite` now keeps its input buffer and anchor grids between frames and decodes only anchors above
+  the score floor. Detections are bit-identical to before (checked on real frames and on frame-size changes); stock
+  went from 27.0 to 20.1 ms. Part of that is the NPU stage (17.3 -> 13.0 ms), measured on a freshly booted board, so the
+  Phase 1 timings are not directly comparable; both rows above were measured back to back.
+- The detector share is 27.5 ms, so both fit with 6-7 ms to spare for the recovery pipeline.
+- FP32/FP16 Mac rows: not run yet.
 
 ## Phase 6: stress tier
 
@@ -124,6 +161,12 @@ end-to-end FPS and p50/p95 ms on the board. On clean ChokePoint and on the stres
   YuNet meets the 25 FPS target. YOLO-320 misses it: npu 22.4 ms plus pre 8.4 ms (letterbox + float conversion) is over
   the detector's share. `cv2.imshow` (GTK) costs 25 ms per frame on the board (16 FPS), so the demo shows through a
   GStreamer waylandsink (0.7 ms). `fullscreen=true` hangs that sink; the picture is g2d-scaled to 1440x1080 instead.
+- **Measured (2026-11-02, faster decoding, thresholds stock 0.6 / fine-tuned 0.7, headless `--display none`
+  because no HDMI screen was connected):** stock 29.5 FPS (pre 6.6, npu 13.6, post 1.9), fine-tuned 27.9 FPS
+  (6.6 / 14.9 / 1.9), YOLOv8n-face 320 22.6 FPS (8.0 / 21.7 / 0.7). Without a connected screen, waylandsink blocks
+  and the demo shows no frames.
+- **On HDMI (2026-11-03, waylandsink, show 0.7 ms):** stock 28.5 FPS (27.2-28.8), fine-tuned 27.9 FPS (26.7-28.6),
+  YOLOv8n-face 320 22.1 FPS (21.8-22.3); ranges over 2 s windows.
   Start (copy `scripts/run_demo.sh` to the board with demo.py, board_bench.py, anonymize.py and the models): `./run_demo.sh --video demo.mp4 --loop --models yunet_480x640_int8.tflite <fine-tuned.tflite> ...` (`--switch-every 10`).
 - README dataset section, results table, push to the team repo.
 

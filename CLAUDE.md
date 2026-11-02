@@ -91,6 +91,8 @@ Phases, gates and the ChokePoint train/val/test split: docs/plan.md.
   Main question: can a small fine-tuned YuNet + pipeline match a big YOLO? Reasons: docs/decisions/why-not-yolo320.md.
 - Anonymization is fast_blur (the strong blur computed at 16 px: 2.9 ms on the board against 104 ms, 0.3% recognised
   by the judge). Decode on the board uses vpudec + imxvideoconvert_g2d with appsink sync=false (7.6 ms).
+- Operating thresholds (chosen on val, INT8 480x640): stock YuNet 0.6, fine-tuned 0.7. OpenCV's default 0.9 exposes
+  every val identity. Deployed fine-tuned model: epoch 20 (docs/plan.md Phase 4).
 - Edge input size: YuNet 480x640 (largest whose detector p50 fits 40 - decode - fast_blur - 2 ms); see docs/plan.md Phase 1.
 
 ## Open decisions (settle with Moro)
