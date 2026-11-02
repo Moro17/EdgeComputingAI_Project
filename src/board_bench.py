@@ -84,27 +84,33 @@ class YuNetTFLite:
         self.run = self.net.get_signature_runner()
         _, self.h, self.w, _ = self.run.get_input_details()["input"]["shape"]
         self.size = f"{self.h}x{self.w}"
-        self.run(input=np.zeros((1, self.h, self.w, 3), np.float32))  # warm-up / NPU graph compile
+        # input buffer and anchor grids built once: per-frame allocation and decoding every anchor cost ~5 ms on the board
+        self.x, self.fill = np.zeros((1, self.h, self.w, 3), np.float32), None
+        self.grid = {s: np.divmod(np.arange(self.h // s * (self.w // s)), self.w // s) for s in (8, 16, 32)}
+        self.run(input=self.x)  # warm-up / NPU graph compile
 
     def __call__(self, bgr):
         t0 = time.perf_counter()
         h, w = bgr.shape[:2]
         r = min(self.w / w, self.h / h)
-        x = np.zeros((1, self.h, self.w, 3), np.float32)
-        x[0, : round(h * r), : round(w * r)] = bgr if r == 1 else cv2.resize(bgr, (round(w * r), round(h * r)))
+        nh, nw = round(h * r), round(w * r)
+        if self.fill != (nh, nw):  # zero the padding only when the frame size changes
+            self.x[:], self.fill = 0, (nh, nw)
+        self.x[0, :nh, :nw] = bgr if r == 1 else cv2.resize(bgr, (nw, nh))
         t1 = time.perf_counter()
-        o = self.run(input=x)
+        o = self.run(input=self.x)
         t2 = time.perf_counter()
         boxes = []
         for k, s in enumerate((8, 16, 32)):
-            rows, cols = np.divmod(np.arange(self.h // s * (self.w // s)), self.w // s)
             cls, obj, b = o[f"output_{k}"][0, :, 0], o[f"output_{k + 3}"][0, :, 0], o[f"output_{k + 6}"][0]
             score = np.sqrt(np.clip(cls, 0, 1) * np.clip(obj, 0, 1))
+            i = np.flatnonzero(score >= FLOOR)  # decode only anchors that survive the floor
+            rows, cols = self.grid[s][0][i], self.grid[s][1][i]
+            b, score = b[i], score[i]
             cx, cy = (cols + b[:, 0]) * s, (rows + b[:, 1]) * s
             bw, bh = np.exp(b[:, 2]) * s, np.exp(b[:, 3]) * s
             boxes.append(np.stack([cx - bw / 2, cy - bh / 2, bw, bh, score], 1))
         a = np.concatenate(boxes).astype(np.float32)
-        a = a[a[:, 4] >= FLOOR]
         keep = cv2.dnn.NMSBoxes(a[:, :4].tolist(), a[:, 4].tolist(), FLOOR, 0.3, top_k=5000)  # YuNet's NMS 0.3
         a = a[np.asarray(keep, int).reshape(-1)]
         a[:, :4] /= r
