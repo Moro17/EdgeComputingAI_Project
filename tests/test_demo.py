@@ -32,6 +32,13 @@ def test_run_one_frame_cpu():  # end to end on a real frame without the NPU
     assert np.array_equal(off, img)
 
 
+def test_missing_video_exits_with_message():
+    import subprocess
+    r = subprocess.run([sys.executable, str(Path(demo.__file__)), "--video", "/nonexistent.mp4", "--loop", "--display", "none",
+                        "--models", "x_int8.tflite"], capture_output=True, text=True, timeout=60)
+    assert r.returncode != 0 and "cannot open video /nonexistent.mp4" in r.stderr, r.stderr[-300:]
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

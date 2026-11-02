@@ -1,6 +1,7 @@
 """Live demo on the i.MX 8M Plus: video file -> hardware decode -> face detector on the NPU -> fast_blur -> HDMI + FPS overlay.
 
-Usage (board): XDG_RUNTIME_DIR=/run/user/0 WAYLAND_DISPLAY=wayland-1 python3 demo.py --video demo.mp4 --loop \
+Usage (board; copy demo.py, board_bench.py, anonymize.py, scripts/run_demo.sh and the models to /root):
+    ./run_demo.sh --video demo.mp4 --loop \
     --models yunet_480x640_int8.tflite yunet_ft_480x640_int8.tflite yolov8n-face_320_int8.tflite
 Models are cycled every --switch-every seconds (the board has no keyboard). Default display is a GStreamer waylandsink
 (g2d-scaled to 1440x1080, ~0 ms: cv2.imshow on GTK costs 25 ms/frame there); --display window uses cv2.imshow with keys m next model,
@@ -79,9 +80,13 @@ def main():
     a = p.parse_args()
     thrs = a.thr or [default_thr(m) for m in a.models]
     assert len(thrs) == len(a.models), "--thr needs one value per model"
+    cap = open_video(a.video)
+    if not cap.isOpened():
+        sys.exit(f"demo.py: cannot open video {a.video}")
     dets = [load(m, npu=not a.cpu) for m in a.models]
     names = [Path(m).stem.replace("_int8", "") for m in a.models]
     sink = None
+    # shortcut: the sink is fixed to 800x600 ChokePoint frames; derive the size from cap for other videos.
     if a.display == "sink":  # g2d upscales 4:3 to 1440x1080 on the 1080p screen; fullscreen=true hangs the sink
         sink = cv2.VideoWriter("appsrc ! videoconvert ! imxvideoconvert_g2d ! video/x-raw,width=1440,height=1080 ! waylandsink sync=false",
                                cv2.CAP_GSTREAMER, 0, 30, (800, 600), True)
@@ -90,7 +95,7 @@ def main():
         cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
         cv2.setWindowProperty("demo", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-    cap, k, blur_on, frames, saved = open_video(a.video), 0, True, 0, a.save_frame is None
+    k, blur_on, frames, saved = 0, True, 0, a.save_frame is None
     times, acc, last_log, switched = deque(maxlen=30), {}, time.perf_counter(), time.perf_counter()
     fps = 0.0
     while True:
@@ -101,7 +106,9 @@ def main():
                 break
             cap.release()
             cap = open_video(a.video)
-            continue
+            ok, frame = cap.read()
+            if not ok:  # otherwise a vanished file spins here forever
+                sys.exit(f"demo.py: cannot reopen video {a.video}")
         read = 1000 * (time.perf_counter() - t0)
         out, st, n = process(frame, dets[k], thrs[k], blur_on)
         st["read"] = read
