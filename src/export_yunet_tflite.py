@@ -57,6 +57,7 @@ def main():
     p.add_argument("src", type=Path)
     p.add_argument("--size", type=int, nargs=2, required=True, metavar=("H", "W"))
     p.add_argument("--out", type=Path)
+    p.add_argument("--keep-float", action="store_true", help="also save onnx2tf's FP32 and FP16 files next to --out")
     args = p.parse_args()
     h, w = args.size
     out = args.out or MODELS / f"{args.src.stem}_{h}x{w}_int8.tflite"
@@ -78,6 +79,10 @@ def main():
             sys.exit("onnx2tf produced no *_integer_quant.tflite")
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(built[0], out)
+        if args.keep_float:  # quantization before/after: the same graph unquantized
+            for prec in ("float32", "float16"):
+                for f in (d / "tf").glob(f"*_{prec}.tflite"):
+                    shutil.copy(f, out.with_name(out.name.replace("_int8", f"_{'fp32' if prec == 'float32' else 'fp16'}")))
     print(f"{out} ({out.stat().st_size / 1e6:.1f} MB)")
 
 

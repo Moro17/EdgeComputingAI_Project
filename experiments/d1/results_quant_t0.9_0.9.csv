@@ -1,0 +1,5 @@
+system,threshold,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet_480x640_npu,0.9,0.9436,160,50.625,0.625,86.2069,32,2.0812,0.996,0.9203,49.4848,20.0768,20.832,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_fp32,0.9,0.9413,160,52.5,0.625,86.2069,32,2.2188,0.9962,0.9155,391.6962,2.4821,2.901,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu,0.9,0.9915,160,14.375,0.0,48.2759,9,0.325,0.9868,1.0082,46.2788,21.4181,22.2141,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_fp32,0.9,0.9902,160,18.125,0.0,55.1724,12,0.4,0.9886,1.0201,330.1707,2.9033,3.4019,imx8mp-npu-vx (board_bench.py)

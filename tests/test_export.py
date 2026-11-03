@@ -69,6 +69,17 @@ def test_tflite_reused_buffer_matches_fresh():  # the input buffer is kept betwe
     assert np.array_equal(det(small)[0], YuNetTFLite(path, npu=False)(small)[0])
 
 
+def test_unsigned_fp32_tflite_matches_int8():  # onnx2tf's FP32 file has no signature; board_bench maps Identity_k
+    fp32, int8 = MODELS / "yunet_480x640_fp32.tflite", MODELS / "yunet_480x640_int8.tflite"
+    if not (fp32.exists() and int8.exists()):
+        print("skip test_unsigned_fp32_tflite_matches_int8: run export_yunet_tflite.py --keep-float")
+        return
+    _, img = sample()
+    a, b = YuNetTFLite(fp32, npu=False)(img)[0], YuNetTFLite(int8, npu=False)(img)[0]
+    a, b = a[a[:, 4] >= 0.5], b[b[:, 4] >= 0.5]
+    assert len(a) == len(b) and np.abs(a[:, :4] - b[:, :4]).max() < 3
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

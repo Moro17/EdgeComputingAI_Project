@@ -1,0 +1,58 @@
+== platform
+6.6.3-lts-next-gccf0a99701a7
+4
+1800000
+MemTotal:        5743528 kB
+MemAvailable:    5404992 kB
+/dev/root       9.6G  6.3G  2.8G  70% /
+Python 3.11.5
+tflite_runtime 2.14.0 opencv 4.8.1 numpy 1.26.0
+00173bd7ece1c87d25711a508f59a40c  yunet_480x640_int8.tflite
+f52cee8159100eea6e01744ce4d86353  yunet_ft_480x640_int8.tflite
+/sys/class/thermal/thermal_zone0/temp 30000
+/sys/class/thermal/thermal_zone1/temp 32000
+== benchmark_model (200 runs)
+-- yunet_480x640_int8 93280 bytes
+npu: INFO: Inference timings in us: Init: 49817, First inference: 6485360, Warmup (avg): 6.48536e+06, Inference (avg): 11032.9 INFO: Overall peak memory footprint (MB) via periodic monitoring: 208.016 
+cpu1: INFO: Inference timings in us: Init: 5310, First inference: 157490, Warmup (avg): 150576, Inference (avg): 147869 INFO: Overall peak memory footprint (MB) via periodic monitoring: 20.8086 
+cpu4: INFO: Inference timings in us: Init: 4543, First inference: 67812, Warmup (avg): 61471.8, Inference (avg): 61242.5 INFO: Overall peak memory footprint (MB) via periodic monitoring: 20.5 
+-- yunet_ft_480x640_int8 118272 bytes
+npu: INFO: Inference timings in us: Init: 14601, First inference: 7937896, Warmup (avg): 7.9379e+06, Inference (avg): 11946.1 INFO: Overall peak memory footprint (MB) via periodic monitoring: 220.742 
+cpu1: INFO: Inference timings in us: Init: 3700, First inference: 199408, Warmup (avg): 194246, Inference (avg): 191143 INFO: Overall peak memory footprint (MB) via periodic monitoring: 20.8281 
+cpu4: INFO: Inference timings in us: Init: 4259, First inference: 107769, Warmup (avg): 106381, Inference (avg): 73496 INFO: Overall peak memory footprint (MB) via periodic monitoring: 20.9023 
+-- yunet_480x640_fp32 238808 bytes
+npu: INFO: Inference timings in us: Init: 14242, First inference: 1122161, Warmup (avg): 1.12216e+06, Inference (avg): 729404 INFO: Overall peak memory footprint (MB) via periodic monitoring: 92.0469 
+cpu1: INFO: Inference timings in us: Init: 7191, First inference: 194241, Warmup (avg): 164564, Inference (avg): 149590 INFO: Overall peak memory footprint (MB) via periodic monitoring: 44.625 
+cpu4: INFO: Inference timings in us: Init: 4802, First inference: 76526, Warmup (avg): 48657.4, Inference (avg): 45540.4 INFO: Overall peak memory footprint (MB) via periodic monitoring: 44.375 
+-- yunet_ft_480x640_fp32 323684 bytes
+npu: INFO: Inference timings in us: Init: 14251, First inference: 1301794, Warmup (avg): 1.30179e+06, Inference (avg): 918433 INFO: Overall peak memory footprint (MB) via periodic monitoring: 94.6562 
+cpu1: INFO: Inference timings in us: Init: 4971, First inference: 271147, Warmup (avg): 231606, Inference (avg): 212264 INFO: Overall peak memory footprint (MB) via periodic monitoring: 61.375 
+cpu4: INFO: Inference timings in us: Init: 5344, First inference: 99164, Warmup (avg): 66439.8, Inference (avg): 61794.9 INFO: Overall peak memory footprint (MB) via periodic monitoring: 61.25 
+-- yunet_480x640_fp16 144632 bytes
+npu: INFO: Inference timings in us: Init: 15021, First inference: 2283753, Warmup (avg): 2.28375e+06, Inference (avg): 1.05078e+06 INFO: Overall peak memory footprint (MB) via periodic monitoring: 125.164 
+cpu1: INFO: Inference timings in us: Init: 6627, First inference: 193136, Warmup (avg): 164842, Inference (avg): 150852 INFO: Overall peak memory footprint (MB) via periodic monitoring: 45 
+cpu4: INFO: Inference timings in us: Init: 7652, First inference: 77321, Warmup (avg): 49237.5, Inference (avg): 46160 INFO: Overall peak memory footprint (MB) via periodic monitoring: 44.625 
+-- yunet_ft_480x640_fp16 189404 bytes
+npu: INFO: Inference timings in us: Init: 14890, First inference: 2831915, Warmup (avg): 2.83192e+06, Inference (avg): 1.23996e+06 INFO: Overall peak memory footprint (MB) via periodic monitoring: 130.406 
+cpu1: INFO: Inference timings in us: Init: 7676, First inference: 271991, Warmup (avg): 231865, Inference (avg): 212275 INFO: Overall peak memory footprint (MB) via periodic monitoring: 61.625 
+cpu4: INFO: Inference timings in us: Init: 8256, First inference: 99492, Warmup (avg): 66958.4, Inference (avg): 62195.7 INFO: Overall peak memory footprint (MB) via periodic monitoring: 61.5 
+-- yolov8n-face_320_int8 3411812 bytes
+npu: INFO: Inference timings in us: Init: 23571, First inference: 7963354, Warmup (avg): 7.96335e+06, Inference (avg): 19778.9 INFO: Overall peak memory footprint (MB) via periodic monitoring: 245.574 
+cpu1: INFO: Inference timings in us: Init: 11484, First inference: 293620, Warmup (avg): 290377, Inference (avg): 287002 INFO: Overall peak memory footprint (MB) via periodic monitoring: 16.2656 
+cpu4: INFO: Inference timings in us: Init: 10756, First inference: 123157, Warmup (avg): 119402, Inference (avg): 119124 INFO: Overall peak memory footprint (MB) via periodic monitoring: 15.8984 
+== demo end to end, headless, 40 s each
+-- npu yunet_480x640_int8: yunet_480x640 30.0 FPS pre 6.6 npu 13.3 post 1.8 blur 0.4 read 1.0 show 0.0 ms faces 1|yunet_480x640 30.9 FPS pre 6.6 npu 13.2 post 1.8 blur 0.7 read 1.0 show 0.0 ms faces 0|yunet_480x640 30.6 FPS pre 6.6 npu 13.2 post 1.8 blur 0.7 read 1.0 show 0.0 ms faces 0|yunet_480x640 30.8 FPS pre 6.7 npu 13.3 post 1.8 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_480x640 30.7 FPS pre 6.7 npu 13.2 post 1.8 blur 0.0 read 1.0 show 0.0 ms faces 0|
+   rss_kb 131064 cpu:    1866 root      20   0 1116520 131576  65480 S 117.5   2.3   0:35.09 python3
+   load: top - 09:01:34 up 15 min,  2 users,  load average: 1.37, 0.64, 0.34|Tasks: 165 total,   2 running, 163 sleeping,   0 stopped,   0 zombie|%Cpu(s): 29.8 us,  4.3 sy,  0.0 ni, 63.8 id,  0.0 wa,  2.1 hi,  0.0 si,  0.0 st |
+-- npu yunet_ft_480x640_int8: yunet_ft_480x640 29.4 FPS pre 6.7 npu 14.2 post 1.8 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 29.3 FPS pre 6.6 npu 14.1 post 1.9 blur 1.1 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 28.5 FPS pre 6.6 npu 14.2 post 1.9 blur 0.7 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 29.5 FPS pre 6.7 npu 14.2 post 1.8 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 29.4 FPS pre 6.7 npu 14.2 post 1.8 blur 0.0 read 1.0 show 0.0 ms faces 0|
+   rss_kb 131220 cpu:    1902 root      20   0 1116776 131732  65540 S 115.0   2.3   0:34.39 python3
+   load: top - 09:02:05 up 15 min,  2 users,  load average: 1.54, 0.77, 0.39|Tasks: 165 total,   2 running, 163 sleeping,   0 stopped,   0 zombie|%Cpu(s): 33.3 us,  2.1 sy,  0.0 ni, 62.5 id,  0.0 wa,  2.1 hi,  0.0 si,  0.0 st |
+-- cpu yunet_480x640_int8: yunet_480x640 12.4 FPS pre 6.5 npu 63.1 post 1.6 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_480x640 12.4 FPS pre 6.6 npu 63.4 post 1.6 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_480x640 12.3 FPS pre 6.5 npu 63.1 post 1.7 blur 1.4 read 1.0 show 0.0 ms faces 1|yunet_480x640 12.1 FPS pre 6.6 npu 63.1 post 1.7 blur 2.1 read 1.0 show 0.0 ms faces 1|yunet_480x640 12.3 FPS pre 6.5 npu 63.3 post 1.6 blur 0.5 read 1.0 show 0.0 ms faces 0|
+   rss_kb 115316 cpu:    1928 root      20   0 1342292 115700  59152 R 274.3   2.0   1:20.77 python3
+   load: top - 09:02:35 up 16 min,  2 users,  load average: 2.04, 0.97, 0.47|Tasks: 165 total,   2 running, 163 sleeping,   0 stopped,   0 zombie|%Cpu(s): 70.8 us,  4.2 sy,  0.0 ni, 22.9 id,  0.0 wa,  2.1 hi,  0.0 si,  0.0 st |
+-- cpu yunet_ft_480x640_int8: yunet_ft_480x640 10.8 FPS pre 6.6 npu 74.7 post 1.6 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 10.8 FPS pre 6.8 npu 74.7 post 1.6 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 10.8 FPS pre 6.8 npu 74.6 post 1.6 blur 0.0 read 1.0 show 0.0 ms faces 0|yunet_ft_480x640 10.7 FPS pre 6.8 npu 74.7 post 1.7 blur 1.2 read 1.0 show 0.0 ms faces 1|yunet_ft_480x640 10.6 FPS pre 6.7 npu 74.6 post 1.7 blur 2.1 read 1.0 show 0.0 ms faces 1|
+   rss_kb 115160 cpu:    1959 root      20   0 1342332 115288  58896 R 289.5   2.0   1:25.12 python3
+   load: top - 09:03:06 up 16 min,  2 users,  load average: 2.30, 1.13, 0.54|Tasks: 165 total,   2 running, 163 sleeping,   0 stopped,   0 zombie|%Cpu(s): 65.2 us,  4.3 sy,  0.0 ni, 30.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st |
+/sys/class/thermal/thermal_zone0/temp 44000
+/sys/class/thermal/thermal_zone1/temp 46000
+

@@ -1,5 +1,5 @@
 {
-  "created": "2026-11-02T18:46:05.162370+00:00",
+  "created": "2026-11-03T08:48:29.136011+00:00",
   "config": {
     "dataset": "chokepoint",
     "seqs": [
@@ -40,6 +40,8 @@
       "yunet_384x512_npu": 0.9,
       "yunet_320x416_npu": 0.9,
       "yunet_ft_480x640_npu": 0.7,
+      "yunet_480x640_fp32": 0.6,
+      "yunet_ft_480x640_fp32": 0.7,
       "deface": 0.2,
       "egoblur": 0.9
     },
@@ -82,6 +84,23 @@
       "device": "imx8mp-npu-vx (board_bench.py)"
     },
     {
+      "system": "yunet_480x640_fp32",
+      "threshold": 0.6,
+      "frame_recall": 0.999888355476164,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.0890527860718047,
+      "fps": 391.6961828448332,
+      "p50_ms": 2.4821250117383897,
+      "p95_ms": 2.900974999647587,
+      "device": "imx8mp-npu-vx (board_bench.py)"
+    },
+    {
       "system": "yunet_ft_480x640_npu",
       "threshold": 0.7,
       "frame_recall": 1.0,
@@ -96,6 +115,23 @@
       "fps": 46.27876524105207,
       "p50_ms": 21.418053000161308,
       "p95_ms": 22.214097600135574,
+      "device": "imx8mp-npu-vx (board_bench.py)"
+    },
+    {
+      "system": "yunet_ft_480x640_fp32",
+      "threshold": 0.7,
+      "frame_recall": 1.0,
+      "appearances": 160,
+      "pct_appearances_leaked": 0.0,
+      "pct_appearances_leaked_null": 0.0,
+      "pct_identities_leaked": 0.0,
+      "max_exposed_run": 0,
+      "mean_max_exposed_run": 0.0,
+      "probe_hit_rate": 0.0,
+      "pct_area_masked": 1.1199905790673188,
+      "fps": 330.17074030550447,
+      "p50_ms": 2.903292013797909,
+      "p95_ms": 3.401858202414587,
       "device": "imx8mp-npu-vx (board_bench.py)"
     }
   ]

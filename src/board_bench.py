@@ -81,13 +81,23 @@ class YuNetTFLite:
 
     def __init__(self, model, npu=True):
         self.net = interpreter(model, npu)
-        self.run = self.net.get_signature_runner()
-        _, self.h, self.w, _ = self.run.get_input_details()["input"]["shape"]
+        if self.net.get_signature_list():
+            self.run = self.net.get_signature_runner()
+            _, self.h, self.w, _ = self.run.get_input_details()["input"]["shape"]
+        else:  # onnx2tf's FP32/FP16 files have no signature; outputs Identity, Identity_1.. are the same ONNX order
+            self.run = self._unsigned
+            _, self.h, self.w, _ = self.net.get_input_details()[0]["shape"]
         self.size = f"{self.h}x{self.w}"
         # input buffer and anchor grids built once: per-frame allocation and decoding every anchor cost ~5 ms on the board
         self.x, self.fill = np.zeros((1, self.h, self.w, 3), np.float32), None
         self.grid = {s: np.divmod(np.arange(self.h // s * (self.w // s)), self.w // s) for s in (8, 16, 32)}
         self.run(input=self.x)  # warm-up / NPU graph compile
+
+    def _unsigned(self, input):
+        self.net.set_tensor(self.net.get_input_details()[0]["index"], input)
+        self.net.invoke()
+        by_name = {d["name"]: d["index"] for d in self.net.get_output_details()}
+        return {f"output_{k}": self.net.get_tensor(by_name["Identity" + (f"_{k}" if k else "")]) for k in range(12)}
 
     def __call__(self, bgr):
         t0 = time.perf_counter()
