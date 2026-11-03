@@ -5,6 +5,8 @@ is recognisable is enough to expose that person. ECA course project (Valerian, M
 
 Deliverable 1 shows a YuNet face detector fine-tuned on ChokePoint, quantized to INT8 and running on the board's NPU in a
 live anonymization demo at 25 FPS, compared with the stock YuNet and with YOLOv8n-face as the "big detector" reference.
+**Deliverable 1 report** (hardware constraints, tech stack, NPU against CPU, optimizations before and after, the
+bottleneck): [DELIVERABLE_1.md](DELIVERABLE_1.md). Board setup and demo: [docs/runbook.md](docs/runbook.md).
 The plan and the measured budget are in [docs/plan.md](docs/plan.md); why YOLO is not the edge detector is in
 [docs/decisions/why-not-yolo320.md](docs/decisions/why-not-yolo320.md).
 
