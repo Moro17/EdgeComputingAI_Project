@@ -42,3 +42,32 @@ def summarise(faces, masked, latency_ms):
         "p50_ms": float(np.percentile(lat, 50)),
         "p95_ms": float(np.percentile(lat, 95)),
     }
+
+
+def bootstrap_ci(faces, n=1000, seed=0):
+    """95% CI of % identities leaked, resampling identities with replacement (29 people: one person = 3.4%)."""
+    per_id = faces.groupby("identity").leaked.any().to_numpy(float)
+    rng = np.random.default_rng(seed)
+    stats = 100 * per_id[rng.integers(0, len(per_id), (n, len(per_id)))].mean(1)
+    return float(np.percentile(stats, 2.5)), float(np.percentile(stats, 97.5))
+
+
+def leak_vs_length(faces, lengths=(1, 5, 10, 25, 50, 100)):
+    """Probability that a window of L consecutive annotated frames of one appearance contains a leaked frame.
+
+    p_independent = 1 - (1 - p_frame)^L is what frame-level numbers predict if misses were independent;
+    the gap to p_leak says whether misses cluster (p_leak below) or spread (above).
+    """
+    p_frame = faces.leaked.mean()
+    rows = []
+    for L in lengths:
+        hits = n = 0
+        for _, g in faces.sort_values("frame").groupby(["seq", "identity"]):
+            v = g.leaked.to_numpy(int)
+            if len(v) < L:
+                continue
+            c = np.convolve(v, np.ones(L, int), "valid")  # leaked frames per window
+            hits, n = hits + int((c > 0).sum()), n + len(c)
+        rows.append({"length": L, "p_leak": hits / n if n else np.nan, "p_independent": 1 - (1 - p_frame) ** L,
+                     "n_windows": n})
+    return pd.DataFrame(rows)

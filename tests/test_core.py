@@ -56,6 +56,76 @@ def test_fast_blur_matches_blur_and_stays_in_the_box():
     assert np.array_equal(a[mask], img[mask])
 
 
+def test_bootstrap_ci():
+    import pandas as pd
+    from metrics.exposure import bootstrap_ci
+
+    faces = pd.DataFrame({"seq": "s", "identity": [1, 1, 2, 3, 4], "leaked": [True, False, False, False, True]})
+    lo, hi = bootstrap_ci(faces)
+    assert 0 <= lo <= 50 <= hi <= 100
+
+
+def test_leak_vs_length():
+    import pandas as pd
+    from metrics.exposure import leak_vs_length
+
+    faces = pd.DataFrame({"seq": "s", "identity": 1, "frame": range(10), "leaked": [False] * 4 + [True] + [False] * 5})
+    r = leak_vs_length(faces, lengths=(1, 5, 10)).set_index("length")
+    assert r.loc[1, "p_leak"] == 0.1 and r.loc[10, "p_leak"] == 1.0
+    assert abs(r.loc[5, "p_leak"] - 5 / 6) < 1e-9  # windows starting 0..5, five contain frame 4
+
+
+def test_enroll_ids_follow_crop_order_when_gt_is_sorted_by_track():
+    """Music Video GT comes ordered by track, not by frame: each embedding must keep its own identity."""
+    import tempfile
+
+    import cv2
+    import pandas as pd
+
+    import benchmark
+
+    tmp = Path(tempfile.mkdtemp())
+    img = np.zeros((60, 60, 3), np.uint8)
+    cv2.imwrite(str(tmp / "f.png"), img)
+    # person A in frames 1-2, then person B in frames 1-2 (track order)
+    gt = pd.DataFrame({"frame": [1, 2, 1, 2], "identity": ["A", "A", "B", "B"], "x": [0, 0, 30, 30],
+                       "y": 0, "w": 20, "h": 20, "lx": np.nan, "ly": np.nan, "rx": np.nan, "ry": np.nan})
+
+    class DS:
+        load_gt = staticmethod(lambda seq: gt)
+        frame_path = staticmethod(lambda seq, n: tmp / "f.png")
+
+    class J:
+        def embed(self, crops):
+            return np.zeros((len(crops), 2))
+
+    seen = []  # identity of each crop, in the order enroll embeds them
+    orig = benchmark.align
+    benchmark.align = lambda im, r: seen.append(r.identity) or np.zeros((112, 112, 3), np.uint8)
+    try:
+        ids, _ = benchmark.enroll(DS, J(), "s", [1, 2], tmp)
+    finally:
+        benchmark.align = orig
+    assert list(ids) == seen == ["A", "B", "A", "B"]
+
+
+def test_recipe_frames_degrade_their_share_only():
+    """The dark recipe calibrates on clean + dark:1 + dark:3 frames, never on the dark:2 test condition."""
+    from systems import quantize
+
+    orig = quantize.calibration_frames
+    quantize.calibration_frames = lambda n: [np.full((8, 8, 3), 200, np.uint8) for _ in range(n)]
+    try:
+        out = quantize.recipe_frames(quantize.RECIPES["dark"]["calib"], n=10)
+    finally:
+        quantize.calibration_frames = orig
+    assert len(out) == 10
+    means = [f.mean() for f in out]
+    assert all(m == 200 for m in means[:3]) and all(m < 180 for m in means[3:])
+    assert np.mean(means[3:6]) > np.mean(means[6:])  # dark:1 brighter than dark:3
+    assert all("dark:2" not in str(r["calib"]) for r in quantize.RECIPES.values())
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
