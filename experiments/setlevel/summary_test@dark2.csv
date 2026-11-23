@@ -1,0 +1,9 @@
+system,threshold,degrade,pct_ids_frame_judge,pct_ids_set_unprotected,pct_ids_set_all
+yunet_480x640_npu,0.6,dark:2,100.0,100.0,58.621
+yunet_480x640_npu+window3,0.6,dark:2,62.069,62.069,27.586
+yunet_480x640_npu+lite+back3,0.6,dark:2,34.483,31.034,10.345
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,0.6,dark:2,10.345,6.897,6.897
+yunet_ft_480x640_npu,0.7,dark:2,96.552,96.552,75.862
+yunet_ft_480x640_npu+window3,0.7,dark:2,82.759,82.759,48.276
+yunet_ft_480x640_npu+lite+back3,0.7,dark:2,72.414,65.517,17.241
+yunet_ft_480x640_npu+risk_d60_t0.1+lite+back3,0.7,dark:2,37.931,27.586,3.448

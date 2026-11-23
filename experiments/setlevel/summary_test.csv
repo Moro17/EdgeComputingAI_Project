@@ -1,0 +1,9 @@
+system,threshold,degrade,pct_ids_frame_judge,pct_ids_set_unprotected,pct_ids_set_all
+yunet_480x640_npu,0.6,,0.0,0.0,0.0
+yunet_480x640_npu+window3,0.6,,0.0,0.0,0.0
+yunet_480x640_npu+lite+back3,0.6,,0.0,0.0,0.0
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,0.6,,0.0,0.0,0.0
+yunet_ft_480x640_npu,0.7,,0.0,0.0,0.0
+yunet_ft_480x640_npu+window3,0.7,,0.0,0.0,0.0
+yunet_ft_480x640_npu+lite+back3,0.7,,0.0,0.0,0.0
+yunet_ft_480x640_npu+risk_d60_t0.1+lite+back3,0.7,,0.0,0.0,0.0
