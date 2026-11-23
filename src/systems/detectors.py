@@ -66,17 +66,24 @@ def to_fp16(src):
     return dst
 
 
-def model_for(src, precision, fp32_detector):
-    """Model file for a precision. INT8 is built once by static quantization, calibrated on the FP32 detector's inputs."""
+def model_for(src, precision, fp32_detector, recipe=None, size=None):
+    """Model file for a precision. INT8 is built once by static quantization, calibrated on the FP32 detector's inputs.
+    recipe: a key of systems.quantize.RECIPES (edge study); size: the fixed input size the detector feeds."""
     if precision == "fp32":
         return src
     if precision == "fp16":
         return to_fp16(src)
-    dst = MODELS / f"{Path(src).stem}_int8.onnx"
+    tag = f"_q{recipe}_{size[0]}x{size[1]}" if recipe else "_int8"
+    dst = MODELS / f"{Path(src).stem}{tag}.onnx"
     if not dst.exists():
-        from systems.quantize import calibration_feeds, to_int8
+        from systems.quantize import RECIPES, calibration_feeds, recipe_frames, to_int8
 
-        to_int8(src, calibration_feeds(fp32_detector()), dst)
+        if recipe:
+            r = RECIPES[recipe]
+            feeds = calibration_feeds(fp32_detector(), recipe_frames(r["calib"]))
+            to_int8(src, feeds, dst, per_channel=r["per_channel"], ops=None, method=r["method"], act=r["act"])
+        else:
+            to_int8(src, calibration_feeds(fp32_detector()), dst)
     return dst
 
 
@@ -100,15 +107,35 @@ class YuNetORT:
     """YuNet on onnxruntime with OpenCV FaceDetectorYN's decoding, so FP32, FP16 and INT8 share one runtime and one decoder.
     Matches cv2.FaceDetectorYN within 1 px (tests/test_detectors.py)."""
 
-    def __init__(self, precision="fp32", path=None):
+    def __init__(self, precision="fp32", path=None, size=None, recipe=None):
+        """size (H, W): resize the frame to fit and place it top-left on a zero H x W canvas, as board_bench.py does
+        for the NPU models (480x640); None runs at frame size padded to a multiple of 32."""
         import onnxruntime as ort
 
-        YuNet()  # downloads the FP32 model if missing
-        src = dynamic(path or MODELS / "face_detection_yunet_2023mar.onnx")  # path=None: stock model
-        path = model_for(src, precision, YuNetORT)
+        if path is None:
+            YuNet()  # downloads the FP32 model if missing
+        # path=None: stock model. A *_HxW.onnx model already has a fixed input (the FP32 TFLite of the board,
+        # converted back with tf2onnx: src/analysis/tflite_to_onnx.md) and is used as is.
+        fixed = path is not None and size is not None and Path(path).stem.endswith(f"_{size[0]}x{size[1]}")
+        src = path if fixed else dynamic(path or MODELS / "face_detection_yunet_2023mar.onnx")
+        self.size = size
+        path = model_for(src, precision, lambda: YuNetORT(path=path, size=size), recipe, size)
         self.net = ort.InferenceSession(str(path), providers=ort_providers())
 
     def __call__(self, bgr):
+        if self.size is None:
+            return self._detect(bgr)
+        H, W = self.size
+        fh, fw = bgr.shape[:2]
+        r = min(W / fw, H / fh)
+        canvas = np.zeros((H, W, 3), np.uint8)
+        nh, nw = round(fh * r), round(fw * r)
+        canvas[:nh, :nw] = bgr if r == 1 else cv2.resize(bgr, (nw, nh))
+        a = self._detect(canvas)
+        a[:, :4] /= r
+        return a
+
+    def _detect(self, bgr):
         h, w = bgr.shape[:2]
         ph, pw = (h - 1) // 32 * 32 + 32, (w - 1) // 32 * 32 + 32  # pad bottom/right to a multiple of 32
         x = np.zeros((1, 3, ph, pw), np.float32)
@@ -189,10 +216,12 @@ class YoloFace:
 class EgoBlur:
     def __init__(self, path):
         import torch
+        import torchvision  # noqa: F401  registers torchvision::nms, which the TorchScript model calls
 
         self.torch = torch
         self.dev = "cuda" if torch.cuda.is_available() else "cpu"
-        self.net = torch.jit.load(str(path), map_location=self.dev).eval()
+        # as EgoBlur's demo: load on CPU then .to(device); map_location=cuda leaves traced constants on the CPU
+        self.net = torch.jit.load(str(path), map_location="cpu").to(self.dev).eval()
 
     def __call__(self, bgr):
         # EgoBlur's demo feeds the raw BGR uint8 frame as a CHW tensor
@@ -225,6 +254,16 @@ SYSTEMS = {
     "yunet_q8": (lambda _: YuNetORT("int8"), 0.9),
     # shortcut: 0.9 is a placeholder until notebooks/finetune_yunet.ipynb Step 6 picks T on val
     "yunet_ft": (lambda _: YuNetORT(path=MODELS / "yunet_ft.onnx"), 0.9),
+    # edge quantization study: stock YuNet at the board's 480x640, FP32 and one INT8 recipe each (quantize.RECIPES);
+    # operating threshold 0.6 as the NPU model
+    "yq_fp32": (lambda _: YuNetORT(size=(480, 640)), 0.6),
+    **{f"yq_{r}": (lambda _, r=r: YuNetORT("int8", size=(480, 640), recipe=r), 0.6)
+       for r in ("board", "pc", "pct", "ent", "dark", "a16")},
+    # the same graphs as the board's FP32 TFLite (stock: check of the conversion; fine-tuned: the deployed model, 0.7)
+    "yq_tfl_fp32": (lambda _: YuNetORT(path=MODELS / "yunet_tfl_480x640.onnx", size=(480, 640)), 0.6),
+    "yqft_fp32": (lambda _: YuNetORT(path=MODELS / "yunet_ft_480x640.onnx", size=(480, 640)), 0.7),
+    **{f"yqft_{r}": (lambda _, r=r: YuNetORT("int8", path=MODELS / "yunet_ft_480x640.onnx", size=(480, 640), recipe=r), 0.7)
+       for r in ("board", "pc", "pct", "ent", "dark", "a16")},
     "scrfd_500m_fp16": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "fp16"), 0.5),
     "scrfd_500m_q8": (lambda _: SCRFD("buffalo_s", "det_500m.onnx", "int8"), 0.5),
     "yolov8n_face_fp16": (lambda _: YoloFace("fp16"), 0.5),

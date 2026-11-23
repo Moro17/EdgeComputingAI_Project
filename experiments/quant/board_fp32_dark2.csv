@@ -1,0 +1,13 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet_480x640_fp32,yunet_480x640_fp32,,0.6,dark:2,0.9061,160,41.25,3.125,100.0,27,3.0625,0.7776,0.8958,18.7204,53.3753,53.7378,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_fp32+lite+back3,yunet_480x640_fp32,lite+back3,0.6,dark:2,0.9815,160,10.0,0.625,34.4828,14,0.4562,0.4639,1.3803,18.7204,53.3753,53.7378,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_fp32+risk_d60_t0.1+lite+back3,yunet_480x640_fp32,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,dark:2,0.9952,160,3.125,0.625,17.2414,9,0.0875,0.3256,1.7965,18.7204,53.3753,53.7378,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu,yunet_480x640_npu,,0.6,dark:2,0.9085,160,41.875,2.5,100.0,26,3.0375,0.7951,0.8977,50.4849,19.7204,20.4059,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+lite+back3,yunet_480x640_npu,lite+back3,0.6,dark:2,0.9816,160,9.375,0.0,34.4828,20,0.525,0.5333,1.3712,50.4849,19.7204,20.4059,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,yunet_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,dark:2,0.997,160,1.875,0.0,10.3448,4,0.0375,0.2222,2.0751,50.4849,19.7204,20.4059,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_fp32,yunet_ft_480x640_fp32,,0.7,dark:2,0.869,160,46.25,2.5,96.5517,31,4.9125,0.8457,0.8423,14.4565,69.0507,69.4583,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_fp32+lite+back3,yunet_ft_480x640_fp32,lite+back3,0.7,dark:2,0.9637,160,20.0,0.0,62.069,17,1.0812,0.5815,1.3256,14.4565,69.0507,69.4583,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_fp32+risk_d60_t0.1+lite+back3,yunet_ft_480x640_fp32,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9857,160,9.375,0.0,41.3793,9,0.3062,0.3984,4.7989,14.4565,69.0507,69.4583,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu,yunet_ft_480x640_npu,,0.7,dark:2,0.8692,160,46.875,2.5,96.5517,30,4.7875,0.843,0.8243,48.2246,20.5756,21.3265,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+lite+back3,yunet_ft_480x640_npu,lite+back3,0.7,dark:2,0.9616,160,19.375,0.625,72.4138,18,1.1312,0.5698,1.2985,48.2246,20.5756,21.3265,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+risk_d60_t0.1+lite+back3,yunet_ft_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9867,160,8.125,0.0,37.931,9,0.3,0.4202,4.8623,48.2246,20.5756,21.3265,imx8mp-npu-vx (board_bench.py)

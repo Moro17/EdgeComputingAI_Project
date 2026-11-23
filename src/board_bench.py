@@ -23,12 +23,17 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+try:  # repo layout (desktop)
+    from degrade import degrade
+except ImportError:  # board: degrade.py copied flat next to this file
+    import degrade
+
 FLOOR = 0.05  # same as src/systems/detectors.py
 NMS_IOU = 0.5
 VX = "/usr/lib/libvx_delegate.so"
 
 
-def interpreter(model, npu):
+def interpreter(model, npu, threads=4):
     try:
         from tflite_runtime.interpreter import Interpreter, load_delegate
     except ImportError:
@@ -36,7 +41,7 @@ def interpreter(model, npu):
     if npu:  # cache the compiled NPU graph: the first run otherwise takes 8-18 s every start
         os.environ.setdefault("VIV_VX_ENABLE_CACHE_GRAPH_BINARY", "1")
         os.environ.setdefault("VIV_VX_CACHE_BINARY_GRAPH_DIR", str(Path(model).resolve().parent))
-    net = Interpreter(str(model), experimental_delegates=[load_delegate(VX)] if npu else None, num_threads=4)
+    net = Interpreter(str(model), experimental_delegates=[load_delegate(VX)] if npu else None, num_threads=threads)
     net.allocate_tensors()
     return net
 
@@ -79,17 +84,20 @@ class YuNetTFLite:
     Outputs output_0..11 = ONNX order cls_8/16/32, obj_8/16/32, bbox_8/16/32, kps_8/16/32.
     Decoded as src/systems/detectors.YuNetORT (OpenCV FaceDetectorYN)."""
 
-    def __init__(self, model, npu=True):
-        self.net = interpreter(model, npu)
+    def __init__(self, model, npu=True, threads=4):
+        self.net = interpreter(model, npu, threads)
         if self.net.get_signature_list():
             self.run = self.net.get_signature_runner()
-            _, self.h, self.w, _ = self.run.get_input_details()["input"]["shape"]
+            d = self.run.get_input_details()["input"]
         else:  # onnx2tf's FP32/FP16 files have no signature; outputs Identity, Identity_1.. are the same ONNX order
             self.run = self._unsigned
-            _, self.h, self.w, _ = self.net.get_input_details()[0]["shape"]
+            d = self.net.get_input_details()[0]
+        _, self.h, self.w, _ = d["shape"]
         self.size = f"{self.h}x{self.w}"
         # input buffer and anchor grids built once: per-frame allocation and decoding every anchor cost ~5 ms on the board
-        self.x, self.fill = np.zeros((1, self.h, self.w, 3), np.float32), None
+        # uint8 input (src/export_uint8_input.py): no float conversion, 4x smaller copy, same detections
+        self.dtype = d["dtype"]
+        self.x, self.fill = np.zeros((1, self.h, self.w, 3), self.dtype), None
         self.grid = {s: np.divmod(np.arange(self.h // s * (self.w // s)), self.w // s) for s in (8, 16, 32)}
         self.run(input=self.x)  # warm-up / NPU graph compile
 
@@ -100,6 +108,13 @@ class YuNetTFLite:
         return {f"output_{k}": self.net.get_tensor(by_name["Identity" + (f"_{k}" if k else "")]) for k in range(12)}
 
     def __call__(self, bgr):
+        o, r, st = self.forward(bgr)
+        boxes, st["post"] = self.decode(o, r)
+        return boxes, st
+
+    def forward(self, bgr):
+        """Pre-processing + NPU. -> (raw outputs, scale r, {pre, npu ms}). Split from decode() so a pipeline can run
+        the CPU decode of frame t while the NPU runs frame t+1."""
         t0 = time.perf_counter()
         h, w = bgr.shape[:2]
         r = min(self.w / w, self.h / h)
@@ -109,6 +124,11 @@ class YuNetTFLite:
         self.x[0, :nh, :nw] = bgr if r == 1 else cv2.resize(bgr, (nw, nh))
         t1 = time.perf_counter()
         o = self.run(input=self.x)
+        t2 = time.perf_counter()
+        return o, r, {"pre": 1000 * (t1 - t0), "npu": 1000 * (t2 - t1)}
+
+    def decode(self, o, r):
+        """Raw outputs -> ((n, 5) x, y, w, h, score in frame pixels, ms)."""
         t2 = time.perf_counter()
         boxes = []
         for k, s in enumerate((8, 16, 32)):
@@ -124,17 +144,18 @@ class YuNetTFLite:
         keep = cv2.dnn.NMSBoxes(a[:, :4].tolist(), a[:, 4].tolist(), FLOOR, 0.3, top_k=5000)  # YuNet's NMS 0.3
         a = a[np.asarray(keep, int).reshape(-1)]
         a[:, :4] /= r
-        t3 = time.perf_counter()
-        return a, {"pre": 1000 * (t1 - t0), "npu": 1000 * (t2 - t1), "post": 1000 * (t3 - t2)}
+        return a, 1000 * (time.perf_counter() - t2)
 
 
-def run(det, frames, out, device):
+def run(det, frames, out, device, deg=None):
     paths = sorted(frames.glob("*.jpg"))
     rows, lat, stages = [], [], {"read": [], "pre": [], "npu": [], "post": []}
     for i, p in enumerate(paths):
         t = time.perf_counter()
         img = cv2.imread(str(p))
         read = 1000 * (time.perf_counter() - t)
+        if deg:  # stress tier: simulated input, not timed
+            img = degrade.apply(img, *degrade.parse(deg), seed=int(p.stem))
         boxes, st = det(img)
         if i >= 5:  # skip warm-up, as src/benchmark.py
             lat.append(st["pre"] + st["npu"] + st["post"])
@@ -157,13 +178,21 @@ def main():
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--name", default=None, help="system name; default <model stem minus _int8>_npu")
     p.add_argument("--cpu", action="store_true", help="no NPU delegate (Mac sanity check / CPU baseline)")
+    p.add_argument("--degrade", default=None, metavar="KIND:SEV", help="stress tier, e.g. dark:2; needs degrade.py next to this file")
     args = p.parse_args()
+    if args.degrade:
+        degrade.parse(args.degrade)
 
     name = args.name or args.model.stem.replace("-", "_").replace("_int8", "") + ("_cpu" if args.cpu else "_npu")
+    if args.degrade:  # same cache dir name as src/benchmark.py: dets/<system>@<kind><sev>/
+        name += "@{}{}".format(*degrade.parse(args.degrade))
     device = "cpu-tflite" if args.cpu else "imx8mp-npu-vx"
     det = (YuNetTFLite if "yunet" in args.model.name else YoloTFLite)(args.model, npu=not args.cpu)
     for seq in args.seqs or sorted(d.name for d in args.frames.iterdir() if d.is_dir()):
-        ms, st = run(det, args.frames / seq, args.out / name, device)
+        if (args.out / name / f"{seq}.json").exists():  # resumable: a sequence is written only when complete
+            print(f"{name} {seq}: done, skip", flush=True)
+            continue
+        ms, st = run(det, args.frames / seq, args.out / name, device, args.degrade)
         print(f"{name} {seq}: {ms:.1f} ms/frame {st}", flush=True)
 
 

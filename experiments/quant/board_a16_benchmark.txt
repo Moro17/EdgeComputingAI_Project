@@ -1,0 +1,9 @@
+-- yunet_480x640_a16
+npu: INFO: Inference timings in us: Init: 16331, First inference: 2215317, Warmup (avg): 2.21532e+06, Inference (avg): 2.20372e+06
+cpu4: INFO: Inference timings in us: Init: 3772, First inference: 2238105, Warmup (avg): 2.2381e+06, Inference (avg): 2.22209e+06
+-- yunet_480x640_int8
+npu: INFO: Inference timings in us: Init: 14238, First inference: 6469030, Warmup (avg): 6.46903e+06, Inference (avg): 11749.5
+cpu4: INFO: Inference timings in us: Init: 4196, First inference: 68274, Warmup (avg): 61618.8, Inference (avg): 60440.8
+-- yunet_480x640_fp32
+npu: INFO: Inference timings in us: Init: 13652, First inference: 1106078, Warmup (avg): 1.10608e+06, Inference (avg): 751087
+cpu4: INFO: Inference timings in us: Init: 4422, First inference: 75172, Warmup (avg): 46477.9, Inference (avg): 43562.1

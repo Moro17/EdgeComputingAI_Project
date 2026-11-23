@@ -1,0 +1,13 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yq_fp32,yq_fp32,,0.6,dark:2,0.8549,521,52.7831,4.6065,100.0,41,6.1478,0.8645,0.8327,197.7067,4.9293,6.4506,['CPUExecutionProvider']
+yq_fp32+lite+back3,yq_fp32,lite+back3,0.6,dark:2,0.9333,521,28.9827,2.6871,93.1034,38,2.7428,0.7555,1.3058,197.7067,4.9293,6.4506,['CPUExecutionProvider']
+yq_board,yq_board,,0.6,dark:2,0.8521,521,53.9347,4.4146,100.0,41,6.1593,0.8702,0.8347,103.9235,9.3985,11.3499,['CPUExecutionProvider']
+yq_board+lite+back3,yq_board,lite+back3,0.6,dark:2,0.9392,521,27.8311,3.071,93.1034,41,2.4203,0.7509,1.3097,103.9235,9.3985,11.3499,['CPUExecutionProvider']
+yq_dark,yq_dark,,0.6,dark:2,0.8495,521,54.7025,4.9904,100.0,41,6.2572,0.8731,0.8311,96.73,9.8568,13.2834,['CPUExecutionProvider']
+yq_dark+lite+back3,yq_dark,lite+back3,0.6,dark:2,0.9389,521,27.0633,2.3033,96.5517,41,2.4376,0.7619,1.3029,96.73,9.8568,13.2834,['CPUExecutionProvider']
+yqft_fp32,yqft_fp32,,0.7,dark:2,0.8252,521,56.6219,5.5662,100.0,42,7.618,0.8936,0.7985,151.9971,6.5595,8.129,['CPUExecutionProvider']
+yqft_fp32+lite+back3,yqft_fp32,lite+back3,0.7,dark:2,0.9205,521,33.2054,3.263,96.5517,41,3.2668,0.7724,1.2625,151.9971,6.5595,8.129,['CPUExecutionProvider']
+yqft_board,yqft_board,,0.7,dark:2,0.823,521,57.5816,5.5662,100.0,42,7.595,0.8931,0.7782,103.6389,9.0781,12.549,['CPUExecutionProvider']
+yqft_board+lite+back3,yqft_board,lite+back3,0.7,dark:2,0.9217,521,33.9731,2.8791,96.5517,41,3.2764,0.7758,1.2416,103.6389,9.0781,12.549,['CPUExecutionProvider']
+yqft_dark,yqft_dark,,0.7,dark:2,0.8192,521,57.3896,5.7582,100.0,42,7.7774,0.8945,0.7721,116.7242,8.3828,10.1407,['CPUExecutionProvider']
+yqft_dark+lite+back3,yqft_dark,lite+back3,0.7,dark:2,0.9163,521,33.7812,3.071,100.0,41,3.4127,0.7683,1.2302,116.7242,8.3828,10.1407,['CPUExecutionProvider']

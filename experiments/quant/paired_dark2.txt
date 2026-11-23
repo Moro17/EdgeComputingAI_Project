@@ -1,0 +1,42 @@
+== yq_fp32 vs yq_board
+pooled over runs: A-only 1, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32 vs yq_pc
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32 vs yq_pct
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32 vs yq_ent
+pooled over runs: A-only 1, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32 vs yq_dark
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32 vs yq_a16
+pooled over runs: A-only 1, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== NPU vs ORT board-recipe
+pooled over runs: A-only 1, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_board+lite+back3
+pooled over runs: A-only 2, B-only 4, sign test p = 0.6875 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_pc+lite+back3
+pooled over runs: A-only 1, B-only 6, sign test p = 0.125 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_pct+lite+back3
+pooled over runs: A-only 3, B-only 3, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_ent+lite+back3
+pooled over runs: A-only 2, B-only 4, sign test p = 0.6875 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_dark+lite+back3
+pooled over runs: A-only 2, B-only 6, sign test p = 0.2891 (runs share people, so the pooled p is optimistic)
+== yq_fp32+lite+back3 vs yq_a16+lite+back3
+pooled over runs: A-only 4, B-only 3, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== NPU vs ORT board-recipe+lite+back3
+pooled over runs: A-only 4, B-only 6, sign test p = 0.7539 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_board+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 2, B-only 0, sign test p = 0.5 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_pc+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 1, B-only 1, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_pct+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 2, B-only 0, sign test p = 0.5 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_ent+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 2, B-only 0, sign test p = 0.5 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_dark+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 1, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+== yq_fp32+risk_d60_t0.1+lite+back3 vs yq_a16+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 2, B-only 0, sign test p = 0.5 (runs share people, so the pooled p is optimistic)
+== NPU vs ORT board-recipe+risk_d60_t0.1+lite+back3
+pooled over runs: A-only 1, B-only 1, sign test p = 1 (runs share people, so the pooled p is optimistic)

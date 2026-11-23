@@ -58,25 +58,27 @@ def main():
     p.add_argument("--size", type=int, nargs=2, required=True, metavar=("H", "W"))
     p.add_argument("--out", type=Path)
     p.add_argument("--keep-float", action="store_true", help="also save onnx2tf's FP32 and FP16 files next to --out")
+    p.add_argument("--a16", action="store_true", help="save the int16-activation, int8-weight model (int16x8) instead; TFLite needs per-channel weights for it")
     args = p.parse_args()
     h, w = args.size
-    out = args.out or MODELS / f"{args.src.stem}_{h}x{w}_int8.tflite"
-    seed = MODELS / ONNX2TF_DATA
-    if not seed.exists():
-        sys.exit(f"missing {seed}: copy onnx2tf's calibration_image_sample_data_20x128x128x3_float32.npy there")
+    out = args.out or MODELS / f"{args.src.stem}_{h}x{w}_{'a16' if args.a16 else 'int8'}.tflite"
+    seed = MODELS / ONNX2TF_DATA  # onnx2tf downloads it when absent; -cind below replaces it for calibration
 
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
-        shutil.copy(seed, d / ONNX2TF_DATA)
+        if seed.exists():
+            shutil.copy(seed, d / ONNX2TF_DATA)
         static = static_onnx(args.src, h, w, d / "static.onnx")
         npy = calib_npy(h, w, d / "calib.npy")
         onnx2tf = Path(sys.executable).with_name("onnx2tf")
         # int16 variants may fail after the integer_quant file is written; only check that file exists
-        subprocess.run([str(onnx2tf), "-i", str(static), "-o", str(d / "tf"), "-oiqt", "-qt", "per-tensor",
+        subprocess.run([str(onnx2tf), "-i", str(static), "-o", str(d / "tf"), "-oiqt", "-qt", "per-channel" if args.a16 else "per-tensor",
                         "-cind", "input", str(npy), "[[[[0,0,0]]]]", "[[[[1,1,1]]]]"], cwd=d)
-        built = list((d / "tf").glob("*_integer_quant.tflite"))
+        # float in/out, quantized inside (board_bench feeds float32); not the full_integer_quant variants
+        want = "_integer_quant_with_int16_act.tflite" if args.a16 else "_integer_quant.tflite"
+        built = [f for f in (d / "tf").glob("*" + want) if "full_integer" not in f.name]
         if not built:
-            sys.exit("onnx2tf produced no *_integer_quant.tflite")
+            sys.exit(f"onnx2tf produced no *{want}")
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(built[0], out)
         if args.keep_float:  # quantization before/after: the same graph unquantized
