@@ -1,0 +1,24 @@
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.1+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.6@dark2      29 34.483 10.345       7       0   0.016  -41.379  -10.345
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.1+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.7@dark2      29 72.414 37.931      10       0   0.002  -51.724  -17.241
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.15+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.6@dark2      29 34.483 13.793       6       0   0.031  -37.931   -6.897
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.15+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.7@dark2      29 72.414 41.379       9       0   0.004  -48.276  -13.793
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.2+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.6@dark2      29 34.483 13.793       6       0   0.031  -37.931   -6.897
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.2+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.7@dark2      29 72.414 44.828       8       0   0.008  -44.828  -10.345
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.3+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.6@dark2      29 34.483  20.69       4       0   0.125  -27.586   -3.448
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.3+lite+back3 (B), test dark:2
+      run  people  pct_a  pct_b  a_only  b_only  p_sign  diff_lo  diff_hi
+0.7@dark2      29 72.414 44.828       8       0   0.008  -44.828  -10.345

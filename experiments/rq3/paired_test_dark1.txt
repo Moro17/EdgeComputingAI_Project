@@ -1,0 +1,24 @@
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.1+lite+back3 (B), test dark:1
+0.6@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.1+lite+back3 (B), test dark:1
+0.7@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.15+lite+back3 (B), test dark:1
+0.6@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.15+lite+back3 (B), test dark:1
+0.7@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.2+lite+back3 (B), test dark:1
+0.6@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.2+lite+back3 (B), test dark:1
+0.7@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: lite+back3 (A) vs risk_d60_t0.3+lite+back3 (B), test dark:1
+0.6@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: lite+back3 (A) vs risk_d60_t0.3+lite+back3 (B), test dark:1
+0.7@dark1      29    0.0    0.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)
