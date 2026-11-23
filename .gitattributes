@@ -1,0 +1,2 @@
+# Shell scripts run on the board (Linux): keep LF even in a Windows checkout with core.autocrlf=true.
+*.sh text eol=lf
