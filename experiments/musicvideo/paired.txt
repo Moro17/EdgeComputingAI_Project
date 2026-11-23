@@ -1,0 +1,32 @@
+# yunet_480x640_npu: window3 (A) vs lite+back3 (B)
+0.6      50   80.0   76.0       3       1   0.625    -12.0      4.0
+0.9      50   98.0   96.0       1       0   1.000     -6.0      0.0
+pooled over runs: A-only 4, B-only 1, sign test p = 0.375 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: window3 (A) vs risk_d60_t0.1+lite+back3 (B)
+0.6      50   80.0   72.0       5       1   0.219    -18.0      0.0
+0.9      50   98.0   90.0       4       0   0.125    -16.0     -2.0
+pooled over runs: A-only 9, B-only 1, sign test p = 0.02148 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: window3 (A) vs risk_d60_t0.3+lite+back3 (B)
+0.6      50   80.0   74.0       4       1   0.375    -14.0      2.0
+0.9      50   98.0   92.0       3       0   0.250    -14.0      0.0
+pooled over runs: A-only 7, B-only 1, sign test p = 0.07031 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: window3 (A) vs bytetrack+keep+back3 (B)
+0.6      50   80.0   80.0       2       2     1.0     -8.0      8.0
+0.9      50   98.0   96.0       1       0     1.0     -6.0      0.0
+pooled over runs: A-only 3, B-only 2, sign test p = 1 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: window3 (A) vs lite+back3 (B)
+0.7      50   82.0   80.0       1       0     1.0     -6.0      0.0
+0.9      50   96.0   94.0       1       0     1.0     -6.0      0.0
+pooled over runs: A-only 2, B-only 0, sign test p = 0.5 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: window3 (A) vs risk_d60_t0.1+lite+back3 (B)
+0.7      50   82.0   72.0       5       0   0.062    -18.0     -2.0
+0.9      50   96.0   88.0       4       0   0.125    -16.0     -2.0
+pooled over runs: A-only 9, B-only 0, sign test p = 0.003906 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: window3 (A) vs risk_d60_t0.3+lite+back3 (B)
+0.7      50   82.0   76.0       3       0    0.25    -14.0      0.0
+0.9      50   96.0   92.0       2       0    0.50    -10.0      0.0
+pooled over runs: A-only 5, B-only 0, sign test p = 0.0625 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: window3 (A) vs bytetrack+keep+back3 (B)
+0.7      50   82.0   82.0       0       0     1.0      0.0      0.0
+0.9      50   96.0   96.0       0       0     1.0      0.0      0.0
+pooled over runs: A-only 0, B-only 0, sign test p = 1 (runs share people, so the pooled p is optimistic)

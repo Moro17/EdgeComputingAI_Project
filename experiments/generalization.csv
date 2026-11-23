@@ -1,0 +1,9 @@
+model,policy,ChokePoint dark2,Music Video,Music Video dark2
+YuNet stock (0.6),per-frame,100.0,94.0,98.0
+YuNet stock (0.6),window3 (MBAM re-impl.),62.1,80.0,88.0
+YuNet stock (0.6),tracker + look-back,34.5,76.0,76.0
+YuNet stock (0.6),+ brightness rule,10.3,72.0,60.0
+YuNet fine-tuned (0.7),per-frame,96.6,96.0,96.0
+YuNet fine-tuned (0.7),window3 (MBAM re-impl.),82.8,82.0,86.0
+YuNet fine-tuned (0.7),tracker + look-back,72.4,80.0,84.0
+YuNet fine-tuned (0.7),+ brightness rule,37.9,72.0,56.0

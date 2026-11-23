@@ -1,0 +1,11 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yunet_480x640_npu,yunet_480x640_npu,,0.6,dark:2,0.7575,99,94.9495,31.3131,98.0,82,13.1717,0.3686,7.6143,57.0225,17.3308,19.021,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+window3,yunet_480x640_npu,window3,0.6,dark:2,0.8316,99,72.7273,22.2222,88.0,82,10.3636,0.296,9.9507,57.0225,17.3308,19.021,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+lite+back3,yunet_480x640_npu,lite+back3,0.6,dark:2,0.8613,99,66.6667,18.1818,76.0,82,8.7071,0.2536,10.409,57.0225,17.3308,19.021,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,yunet_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,dark:2,0.953,99,43.4343,8.0808,60.0,21,1.4949,0.077,20.0883,57.0225,17.3308,19.021,imx8mp-npu-vx (board_bench.py)
+yunet_480x640_npu+risk_d60_t0.3+lite+back3,yunet_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.3))+lite+back3",0.6,dark:2,0.9175,99,56.5657,15.1515,72.0,31,3.6768,0.1437,12.8086,57.0225,17.3308,19.021,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu,yunet_ft_480x640_npu,,0.7,dark:2,0.7656,99,93.9394,30.303,96.0,67,12.8182,0.3499,7.1395,52.6856,18.8123,20.5721,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+window3,yunet_ft_480x640_npu,window3,0.7,dark:2,0.8258,99,76.7677,26.2626,86.0,67,10.3939,0.2784,9.1767,52.6856,18.8123,20.5721,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+lite+back3,yunet_ft_480x640_npu,lite+back3,0.7,dark:2,0.8595,99,73.7374,21.2121,84.0,45,8.697,0.2351,9.6081,52.6856,18.8123,20.5721,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+risk_d60_t0.1+lite+back3,yunet_ft_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9565,99,39.3939,10.101,56.0,33,2.0909,0.0838,19.4035,52.6856,18.8123,20.5721,imx8mp-npu-vx (board_bench.py)
+yunet_ft_480x640_npu+risk_d60_t0.3+lite+back3,yunet_ft_480x640_npu,"risk(('dark', 60), ('thr_dark', 0.3))+lite+back3",0.7,dark:2,0.9223,99,54.5455,11.1111,76.0,33,3.6364,0.1198,12.5317,52.6856,18.8123,20.5721,imx8mp-npu-vx (board_bench.py)

@@ -1,0 +1,16 @@
+# yunet_480x640_npu: per-frame (A) vs lite+back3 (B)
+0.6      50   94.0   76.0       9       0   0.004    -30.0     -8.0
+0.9      50   98.0   96.0       1       0   1.000     -6.0      0.0
+pooled over runs: A-only 10, B-only 0, sign test p = 0.001953 (runs share people, so the pooled p is optimistic)
+# yunet_480x640_npu: per-frame (A) vs risk_d60_t0.1+lite+back3 (B)
+0.6      50   94.0   72.0      11       0   0.001    -34.0    -12.0
+0.9      50   98.0   90.0       4       0   0.125    -16.0     -2.0
+pooled over runs: A-only 15, B-only 0, sign test p = 6.104e-05 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: per-frame (A) vs lite+back3 (B)
+0.7      50   96.0   80.0       8       0   0.008    -26.0     -6.0
+0.9      50   98.0   94.0       2       0   0.500    -10.0      0.0
+pooled over runs: A-only 10, B-only 0, sign test p = 0.001953 (runs share people, so the pooled p is optimistic)
+# yunet_ft_480x640_npu: per-frame (A) vs risk_d60_t0.1+lite+back3 (B)
+0.7      50   96.0   72.0      12       0   0.000    -36.0    -12.0
+0.9      50   98.0   88.0       5       0   0.062    -18.0     -2.0
+pooled over runs: A-only 17, B-only 0, sign test p = 1.526e-05 (runs share people, so the pooled p is optimistic)
