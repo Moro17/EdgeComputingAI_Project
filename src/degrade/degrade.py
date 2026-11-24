@@ -10,16 +10,18 @@ desktop and the board see the same degraded pixels. Only numpy + OpenCV, so the 
 | down  | INTER_AREA down by f, INTER_LINEAR back up             | 2          | 3          | 4           |
 | occl  | grey rectangles, 10% of the frame side each, random    | 2          | 4          | 8           |
 | jpeg  | re-encode at JPEG quality q (low-bitrate stream blocks) | 30         | 15         | 8           |
+| noise | Gaussian sensor noise sigma at normal brightness (bank) | 10         | 20         | 30          |
 """
 import cv2
 import numpy as np
 
-KINDS = ("dark", "blur", "down", "occl", "jpeg")
+KINDS = ("dark", "blur", "down", "occl", "jpeg", "noise")
 DARK = {1: (2.0, 3.0), 2: (3.0, 6.0), 3: (4.0, 10.0)}
 BLUR = {1: 7, 2: 15, 3: 25}
 DOWN = {1: 2, 2: 3, 3: 4}
 OCCL = {1: 2, 2: 4, 3: 8}
 JPEG = {1: 30, 2: 15, 3: 8}
+NOISE = {1: 10.0, 2: 20.0, 3: 30.0}
 
 
 NOISE_BANK = 8  # frame n uses field n % 8: drawing fresh Gaussian noise per frame cost ~90 ms on the board's A53
@@ -69,6 +71,10 @@ def apply(img, kind, sev, seed):
     if kind == "jpeg":
         ok, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, JPEG[sev]])
         return cv2.imdecode(buf, cv2.IMREAD_COLOR)
+    if kind == "noise":  # high-ISO sensor noise without the darkening of "dark"
+        out = noise_field(img.shape, seed) * np.float32(NOISE[sev])
+        out += img
+        return np.clip(out, 0, 255, out=out).astype(np.uint8)
     raise ValueError(f"unknown degradation {kind!r}")
 
 
