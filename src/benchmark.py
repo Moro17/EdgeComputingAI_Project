@@ -31,6 +31,7 @@ from judge.arcface import Judge, align, templates
 from metrics.exposure import PROTECTED_COVERAGE, coverage, summarise
 from systems.anonymize import MASK_SCALE, box_mask, fast_blur, scale_boxes
 from systems.detectors import FLOOR, SYSTEMS, used_providers
+from systems import scene
 from systems.policies import parse_spec, run_policy
 
 FAR = 0.01
@@ -218,7 +219,13 @@ def main():
                 shape = cv2.imread(str(ds.frame_path(s, frames[s][0]))).shape
                 lum = luma(ds, s, frames[s], args.out, args.degrade) if any(
                     n == "risk" and "dark" in dict(v) for n, v in steps) else None
-                d, t = run_policy(steps, d, frames[s], t, shape, lum=lum), -1.0
+                zone = mot = None
+                if any(n == "risk" and "thr_zone" in dict(v) for n, v in steps):
+                    refl = any(n == "risk" and dict(v).get("zone_src") == "reflection" for n, v in steps)
+                    zone = scene.reflection_zone(s, shape) if refl else scene.face_zone(ds, s, shape)
+                    mot = scene.motion(ds, s, frames[s], load_frame, args.degrade,
+                                       cache=args.out / "motion" / f"{s}{sfx}.npy")
+                d, t = run_policy(steps, d, frames[s], t, shape, lum=lum, zone=zone, motion=mot), -1.0
             # shortcut: latency is the detector's on every frame, also with skipN (frame_latency, plan Task 7)
             f, m = score(ds, judge, d, t, s, frames[s], tmpl[s], args.out, f"{system}_t{thr[system]}{sfx}", args.degrade)
             faces.append(f)

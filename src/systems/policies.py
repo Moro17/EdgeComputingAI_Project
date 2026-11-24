@@ -7,8 +7,11 @@ Steps, in this order:
   skipN      detector runs only on every N-th frame (keyframes)                  baseline B3
   risk       risk-adaptive threshold (RQ3, systems/bytelite.py RiskGate): a detection in [low, thr) is   ours, board
              promoted to thr if its box is tall (_hH, percent of frame height) or it persisted K frames (_pK); knobs
-             or the frame is dark (_dL_tT: mean grey < L -> threshold T); knobs risk_l0.3_h13_p3_d60_t0.4 =
-             low, h_min, persist, dark, thr_dark (at least one rule)
+             or the frame is dark (_dL_tT: mean grey < L -> threshold T; _c: only boxes seen in the previous
+             dark frame too), or it is in the camera's face zone while there is motion there (_zT_mM: threshold T
+             when motion >= M; zone and motion from systems/scene.py); knobs risk_l0.3_h13_p3_d60_t0.4_c_z0.3_m2 =
+             low, h_min, persist, dark, thr_dark, confirm, thr_zone, motion_min (at least one rule); _zrT_mM uses
+             the reflection zone instead (door glass where val faces were reflected, systems/scene.py)
   windowW    every frame also gets the detections of the W frames before and     our re-implementation of
              after it, merged by NMS (IoU 0.5); W frames of extra latency        MBAM's temporal fusion
   bytetrack  ByteTrack (supervision implementation) over keyframe detections     baseline B2
@@ -49,13 +52,16 @@ def parse_spec(spec):
     for t in tokens:
         m = re.fullmatch(r"(skip|window|back|spread|grow)(\d+)", t)
         b = re.fullmatch(r"budget(?:_d([\d.]+))?(?:_g([\d.]+))?(?:_a(\d+)-(\d+))?", t)
-        r = re.fullmatch(r"risk(?:_l([\d.]+))?(?:_h(\d+))?(?:_p(\d+))?(?:_d(\d+)_t([\d.]+))?", t)
+        r = re.fullmatch(r"risk(?:_l([\d.]+))?(?:_h(\d+))?(?:_p(\d+))?(?:_d(\d+)_t([\d.]+)(_c)?)?(?:_z(r?)([\d.]+)_m([\d.]+))?", t)
         if r:
-            lo, h, p, dk, td = r.groups()
+            lo, h, p, dk, td, cf, zr, tz, mm = r.groups()
             kw = {k: v for k, v in (("low", lo and float(lo)), ("h_min", h and int(h)), ("persist", p and int(p)),
-                                    ("dark", dk and int(dk)), ("thr_dark", td and float(td))) if v is not None}
-            if not kw.get("h_min") and kw.get("persist", 0) < 2 and not kw.get("dark"):
-                raise ValueError(f"{spec}: risk needs _hH (height), _pK with K >= 2 (persistence) and/or _dL_tT (dark)")
+                                    ("dark", dk and int(dk)), ("thr_dark", td and float(td)), ("confirm", bool(cf) or None),
+                                    ("thr_zone", tz and float(tz)), ("motion_min", mm and float(mm)),
+                                    ("zone_src", "reflection" if zr else None)) if v is not None}
+            if not kw.get("h_min") and kw.get("persist", 0) < 2 and not kw.get("dark") and "thr_zone" not in kw:
+                raise ValueError(f"{spec}: risk needs _hH (height), _pK with K >= 2 (persistence), _dL_tT (dark) "
+                                 "and/or _zT_mM (zone + motion)")
             steps.append(("risk", tuple(sorted(kw.items()))))
         elif b and t != "budget":
             d, g, a0, a1 = b.groups()
@@ -291,9 +297,10 @@ def back(boxes, frames, w, offsets=None, kind="back"):
     return out[COLS].sort_values(["frame", "track_id"], kind="stable").reset_index(drop=True)
 
 
-def run_policy(steps, dets, frames, thr, shape, lum=None):
+def run_policy(steps, dets, frames, thr, shape, lum=None, zone=None, motion=None):
     """Boxes to blur for one sequence. Without bytetrack, detections are filtered at thr first.
-    lum: {frame: mean grey level}, needed by risk's dark rule (benchmark.luma)."""
+    lum: {frame: mean grey level}, needed by risk's dark rule (benchmark.luma); zone (bool grid) and motion
+    {frame: mean abs grey difference in the zone}, needed by risk's zone rule (systems/scene.py)."""
     names = dict(steps)
     keys = keyframes(frames, names.get("skip", 1))
     if names.get("skip", 1) > 1:  # the detector never ran on the other frames (as on the board)
@@ -304,13 +311,18 @@ def run_policy(steps, dets, frames, thr, shape, lum=None):
         from systems.bytelite import RiskGate
         kw = dict(names["risk"])
         kw["h_min"] = kw.get("h_min", 0) * shape[0] / 100  # percent of frame height -> pixels
-        gate, parts, idx, prev = RiskGate(thr, **kw), [], {f: i for i, f in enumerate(frames)}, None
+        kw.pop("zone_src", None)  # which zone grid the caller built (face or reflection), not a gate knob
+        if "thr_zone" in kw and (zone is None or motion is None):
+            raise ValueError("risk _z (zone) needs zone and motion (systems/scene.py)")
+        gate = RiskGate(thr, **kw, zone=zone, frame_hw=shape[:2])
+        parts, idx, prev = [], {f: i for i, f in enumerate(frames)}, None
         for k, g in dets.groupby("frame", sort=True):  # online over the frames that have detections; a frame
             g = g.copy()                                 # without any breaks persistence, as on the board
             if prev is not None and idx.get(k, -9) - idx.get(prev, -99) != 1:
-                gate.hist = []
+                gate.hist, gate.prev_dark = [], np.zeros((0, 4))
             prev = k
-            g["score"] = gate.update(g[["x", "y", "w", "h", "score"]].to_numpy(), lum[k] if lum else None)[:, 4]
+            g["score"] = gate.update(g[["x", "y", "w", "h", "score"]].to_numpy(), lum[k] if lum else None,
+                                     motion.get(k) if motion else None)[:, 4]
             parts.append(g)
         dets = pd.concat(parts, ignore_index=True) if parts else dets
     if "lite" in names:

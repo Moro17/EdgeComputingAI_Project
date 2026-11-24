@@ -269,6 +269,50 @@ def test_risk_gate_promotes_tall_or_persistent_weak_detections():
     assert list(out.frame) == [1]
 
 
+def test_dark_confirm_needs_the_previous_dark_frame():
+    # frame 0 dark with a one-off box elsewhere; the face box is seen dark at frames 1 and 2
+    d = dets([(0, 600, 400, 20, 30, .2), (1, 400, 100, 20, 30, .2), (2, 401, 101, 20, 30, .2)])
+    lum = {0: 30.0, 1: 30.0, 2: 30.0}
+    plain = run_policy(parse_spec("y+risk_d60_t0.1")[1], d, [0, 1, 2], thr=.9, shape=(600, 800), lum=lum)
+    assert sorted(plain.frame) == [0, 1, 2]
+    conf = run_policy(parse_spec("y+risk_d60_t0.1_c")[1], d, [0, 1, 2], thr=.9, shape=(600, 800), lum=lum)
+    assert sorted(conf.frame) == [2]  # frame 0 and 1 have nothing to confirm them
+
+
+def test_zone_rule_promotes_in_zone_only_with_motion():
+    import numpy as np
+
+    zone = np.zeros((30, 40), bool)
+    zone[:, :20] = True  # left half of an 800x600 frame
+    d = dets([(0, 100, 100, 20, 30, .4), (0, 600, 100, 20, 30, .4), (0, 300, 300, 20, 30, .4),
+              (1, 100, 100, 20, 30, .4)])
+    moving = np.zeros((60, 80), np.uint8)
+    moving[:, :] = 5
+    moving[25:40, 25:40] = 0  # the box at (300, 300) is in the zone but static
+    spec = parse_spec("y+risk_z0.3_m2")[1]
+    out = run_policy(spec, d, [0, 1], thr=.9, shape=(600, 800), zone=zone,
+                     motion={0: moving, 1: np.zeros((60, 80), np.uint8)})
+    assert list(zip(out.frame, out.x)) == [(0, 100)]  # outside the zone / static box / frame 1 without motion
+    try:
+        run_policy(spec, d, [0, 1], thr=.9, shape=(600, 800))
+        assert False
+    except ValueError:
+        pass
+
+
+def test_reflection_zone_spec_names_the_zone_and_runs_like_the_zone_rule():
+    import numpy as np
+
+    spec = parse_spec("y+risk_d60_t0.1_zr0.2_m0+lite+back3")[1]
+    assert dict(dict(spec)["risk"])["zone_src"] == "reflection"
+    zone = np.zeros((30, 40), bool)
+    zone[:, 20:] = True  # door glass on the right half
+    d = dets([(0, 600, 100, 20, 30, .25), (0, 100, 100, 20, 30, .25)])
+    still = np.zeros((60, 80), np.uint8)
+    out = run_policy(parse_spec("y+risk_zr0.2_m0")[1], d, [0], thr=.9, shape=(600, 800), zone=zone, motion={0: still})
+    assert list(out.x) == [600]  # m0: no motion needed; only the box on the glass is promoted
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

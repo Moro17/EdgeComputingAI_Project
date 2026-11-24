@@ -88,6 +88,19 @@ class LiteTracker:
         self.box[i] = b
 
 
+def box_motion(maps, boxes, frame_hw):
+    """Mean of a small motion map (systems/scene.py) inside each xywh box given in frame pixels -> (n,)."""
+    mh, mw = maps.shape
+    h, w = frame_hw
+    out = np.zeros(len(boxes))
+    for i, (x, y, bw, bh) in enumerate(np.asarray(boxes)[:, :4]):
+        x0, y0 = int(np.clip(x * mw / w, 0, mw - 1)), int(np.clip(y * mh / h, 0, mh - 1))
+        x1 = int(np.clip(np.ceil((x + bw) * mw / w), x0 + 1, mw))
+        y1 = int(np.clip(np.ceil((y + bh) * mh / h), y0 + 1, mh))
+        out[i] = maps[y0:y1, x0:x1].mean()
+    return out
+
+
 class RiskGate:
     """Risk-adaptive threshold (RQ3), online and numpy-only like the tracker, applied to a frame's detections before it.
 
@@ -98,21 +111,48 @@ class RiskGate:
                     face stays where it is; low-score false positives flicker).
     And, whatever the box: in a dark frame (mean grey level < dark) every detection >= thr_dark is promoted
     (the detector's scores drop in the dark; the board reads the mean off the Y plane it already has).
-    h_min = 0 / persist = 0 / dark = 0 switch a rule off. Cost: one IoU matrix per frame per remembered frame.
+      - confirm:    the dark rule promotes a box only if a dark candidate (>= thr_dark) overlapped it (IoU >= 0.3)
+                    in the previous frame: one-frame false positives on skin and texture (Music Video) stay out.
+      - zone:       a fixed camera's face zone (bool grid over the frame, systems/scene.py, learned on val): a
+                    detection >= thr_zone whose centre is in the zone and whose box moved (mean abs grey difference
+                    to the previous frame inside the box >= motion_min, on a small motion map) is promoted, so a
+                    face entering the scene is masked before the detector is sure of it.
+    h_min = 0 / persist = 0 / dark = 0 / thr_zone = None switch a rule off. Cost: one IoU matrix per frame per
+    remembered frame.
     """
 
-    def __init__(self, thr, low=0.3, h_min=0, persist=0, dark=0, thr_dark=None):
+    def __init__(self, thr, low=0.3, h_min=0, persist=0, dark=0, thr_dark=None, confirm=False, thr_zone=None,
+                 motion_min=0.0, zone=None, frame_hw=None):
         self.thr, self.low, self.h_min, self.persist = thr, low, h_min, persist
         self.dark, self.thr_dark = dark, thr if thr_dark is None else thr_dark
+        self.confirm, self.prev_dark = confirm, np.zeros((0, 4))
+        self.thr_zone, self.motion_min, self.zone, self.frame_hw = thr_zone, motion_min, zone, frame_hw
         self.hist = []  # candidate boxes (score >= low) of the previous persist-1 frames, oldest first
 
-    def update(self, dets, lum=None):
+    def in_zone(self, boxes):
+        gh, gw = self.zone.shape
+        h, w = self.frame_hw
+        cx = np.clip(((boxes[:, 0] + boxes[:, 2] / 2) * gw / w).astype(int), 0, gw - 1)
+        cy = np.clip(((boxes[:, 1] + boxes[:, 3] / 2) * gh / h).astype(int), 0, gh - 1)
+        return self.zone[cy, cx]
+
+    def update(self, dets, lum=None, motion=None):
         dets = np.asarray(dets, float).reshape(-1, 5).copy()
         cand = dets[dets[:, 4] >= self.low, :4]
         weak = (dets[:, 4] >= self.low) & (dets[:, 4] < self.thr)
         risky = np.zeros(len(dets), bool)
         if self.dark and lum is not None and lum < self.dark:
-            risky |= (dets[:, 4] >= self.thr_dark) & (dets[:, 4] < self.thr)
+            dark = (dets[:, 4] >= self.thr_dark) & (dets[:, 4] < self.thr)
+            if self.confirm:
+                seen = (iou(dets[:, :4], self.prev_dark) >= 0.3).any(1) if len(self.prev_dark) else np.zeros(len(dets), bool)
+                self.prev_dark = dets[dets[:, 4] >= self.thr_dark, :4]
+                dark &= seen
+            risky |= dark
+        elif self.confirm:
+            self.prev_dark = np.zeros((0, 4))
+        if self.thr_zone is not None and self.zone is not None and motion is not None and len(dets):
+            moving = box_motion(motion, dets, self.frame_hw) >= self.motion_min
+            risky |= (dets[:, 4] >= self.thr_zone) & (dets[:, 4] < self.thr) & self.in_zone(dets) & moving
         if self.h_min:
             risky |= weak & (dets[:, 3] >= self.h_min)
         if self.persist > 1 and len(self.hist) == self.persist - 1:
