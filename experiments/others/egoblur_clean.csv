@@ -1,0 +1,4 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+egoblur,egoblur,,0.9,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.107,10.4837,90.5883,143.2435,cuda
+egoblur+lite+back3,egoblur,lite+back3,0.9,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.4943,10.4837,90.5883,143.2435,cuda
+egoblur+risk_d60_t0.1+lite+back3,egoblur,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.9,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.4943,10.4837,90.5883,143.2435,cuda

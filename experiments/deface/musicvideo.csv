@@ -1,0 +1,4 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+deface,deface,,0.2,,0.9662,99,51.5152,12.1212,70.0,12,1.4747,0.1066,8.4083,4.3708,198.0412,416.2262,['CPUExecutionProvider']
+deface+lite+back3,deface,lite+back3,0.2,,0.9819,99,21.2121,7.0707,32.0,7,0.5152,0.0544,10.8839,4.3708,198.0412,416.2262,['CPUExecutionProvider']
+deface+risk_d60_t0.1+lite+back3,deface,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.2,,0.9835,99,20.202,6.0606,32.0,7,0.4545,0.047,11.346,4.3708,198.0412,416.2262,['CPUExecutionProvider']

@@ -1,0 +1,10 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+scrfd_500m,scrfd_500m,,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1121,63.3011,15.4789,22.2433,['CPUExecutionProvider']
+scrfd_500m+lite+back3,scrfd_500m,lite+back3,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5972,63.3011,15.4789,22.2433,['CPUExecutionProvider']
+scrfd_500m+risk_d60_t0.1+lite+back3,scrfd_500m,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5972,63.3011,15.4789,22.2433,['CPUExecutionProvider']
+scrfd_10g,scrfd_10g,,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.124,11.4344,87.0894,102.8035,['CPUExecutionProvider']
+scrfd_10g+lite+back3,scrfd_10g,lite+back3,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5535,11.4344,87.0894,102.8035,['CPUExecutionProvider']
+scrfd_10g+risk_d60_t0.1+lite+back3,scrfd_10g,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5535,11.4344,87.0894,102.8035,['CPUExecutionProvider']
+yolov8n_face,yolov8n_face,,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.1473,24.8319,40.724,47.4588,['CPUExecutionProvider']
+yolov8n_face+lite+back3,yolov8n_face,lite+back3,0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5176,24.8319,40.724,47.4588,['CPUExecutionProvider']
+yolov8n_face+risk_d60_t0.1+lite+back3,yolov8n_face,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.5,,1.0,160,0.0,0.0,0.0,0,0.0,0.0,1.5176,24.8319,40.724,47.4588,['CPUExecutionProvider']

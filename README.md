@@ -50,7 +50,9 @@ similarity at 1% false accept rate on impostor pairs. InsightFace models are for
 - **Fine-tuning** (`notebooks/finetune_yunet.ipynb`, Colab T4): libfacedetection.train (BSD-3) from the released
   `yunet_n` weights, lr 0.001 (1/10 of default), square 640 crops, checkpoint chosen on val.
 - **Quantization** (`src/export_yunet_tflite.py`): ONNX -> static INT8 TFLite at 480x640 with onnx2tf, per-tensor,
-  for the VX delegate on the NPU.
+  for the VX delegate on the NPU. Against FP32 (on the board's CPU and in a desktop simulation of six recipes:
+  per-channel, percentile, entropy, dark calibration, int16 activations) no recipe changes the people exposed
+  significantly on ChokePoint or Music Video, while FP32 is 2.6-3.2x slower; details in docs/next-runs.md.
 
 ## Results (test split, i.MX 8M Plus NPU, INT8)
 
@@ -75,6 +77,29 @@ What this shows:
 - The fine-tuned network is slightly larger (trainer's `yunet_n`: 59 convolutions against 53): +1.3 ms on the NPU.
 
 Val results (checkpoint and threshold choice): [docs/plan.md](docs/plan.md), Phase 4.
+
+### Degraded video, recovery and the brightness rule (details: [docs/next-runs.md](docs/next-runs.md))
+
+% of people exposed, operating thresholds (stock 0.6 / fine-tuned 0.7), NPU detections:
+
+| Policy | ChokePoint test, dark:2 (29 people) | Music Video, clean (50) | Music Video, dark:2 (50) |
+|---|---|---|---|
+| per-frame detector | 100 / 97 | 94 / 96 | 98 / 96 |
+| window3 (our re-implementation of MBAM) | 62 / 83 | 80 / 82 | 88 / 86 |
+| tracker + 3-frame look-back (`lite+back3`) | 34 / 72 | 76 / 80 | 76 / 84 |
+| + brightness rule, T = 0.1 (`risk_d60_t0.1`) | **10 / 38** | **72 / 72** | **60 / 56** |
+
+![people exposed per policy](experiments/generalization.png) (`src/analysis/generalization_fig.py`)
+
+- RQ1: on Music Video, 88% frame recall still exposes 94% of people.
+- RQ2: tracker + look-back beats per-frame on both datasets (Music Video p = 0.004 / 0.008); pose fallback dropped,
+  because after tracking at most one person per condition leaks only through frames with no detection at all.
+- RQ3: below a mean grey of 60 the threshold drops to T. Never fires on normal frames (same masks, same area),
+  helps at moderate darkness (p <= 0.008 on both datasets), cannot save very dark video (dark:3 stays 100%).
+  0.8 ms per frame on the board; three cameras still at 25 FPS.
+- A set-level attacker (mean embedding over a person's faces) is never stronger than the max-over-frames judge.
+- Music Video is an upper bound on exposure (gallery from the other half of the same video). Its misses are small
+  faces (1280x720 squeezed to 640x480), not close-ups.
 
 **Live demo on HDMI, whole loop** (decode + detect + fast_blur + overlay + display, 277 s clip of three test
 sequences): YuNet stock 28.5 FPS (27.2-28.8), YuNet fine-tuned 27.9 FPS (26.7-28.6), YOLOv8n-face 320 22.1 FPS
