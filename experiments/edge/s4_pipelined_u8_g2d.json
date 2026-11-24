@@ -1,0 +1,41 @@
+{
+ "tag": "s4_pipelined_u8_g2d",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "none",
+ "input_dtype": "uint8",
+ "back": 0,
+ "mode": "pipelined",
+ "streams": 1,
+ "source_fps": 0,
+ "g2d_resize": true,
+ "fps_total": 88.3,
+ "fps_per_stream": [
+  88.3
+ ],
+ "latency_ms_p50": 71.6,
+ "latency_ms_p95": 75.2,
+ "stage_ms_p50": {
+  "read": 1.36,
+  "pre": 0.72,
+  "npu": 10.37,
+  "post": 3.65,
+  "out": 0.03,
+  "track": 0.05
+ },
+ "npu_duty_pct": 91.6,
+ "galcore_npu_load_pct": 22.4,
+ "cpu_busy_pct_per_core": [
+  33.0,
+  32.3,
+  32.5,
+  32.5
+ ],
+ "cpu_busy_pct_total": 130.3,
+ "temp_c_max": 40.0,
+ "frames": 2653,
+ "cpu_model": null,
+ "frames_by_engine": {
+  "npu": 2655,
+  "cpu": 0
+ }
+}

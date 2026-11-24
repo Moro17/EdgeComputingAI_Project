@@ -77,7 +77,10 @@ def main():
     p.add_argument("--loop", action="store_true")
     p.add_argument("--switch-every", type=float, default=10, help="seconds per model, 0 = only on key m")
     p.add_argument("--cpu", action="store_true", help="no NPU (Mac test)")
-    p.add_argument("--display", choices=["sink", "window", "none"], default="sink")
+    p.add_argument("--display", choices=["sink", "window", "web", "both", "none"], default="sink",
+                   help="web: MJPEG stream in a browser at http://<board>:--web-port/ (edge_pipeline.web_threads); "
+                        "both: HDMI sink and browser")
+    p.add_argument("--web-port", type=int, default=8080)
     p.add_argument("--save-frame", default=None, help="write one overlaid frame (after 60 frames) to this jpg")
     a = p.parse_args()
     thrs = a.thr or [default_thr(m) for m in a.models]
@@ -88,10 +91,18 @@ def main():
     dets = [load(m, npu=not a.cpu) for m in a.models]
     names = [Path(m).stem.replace("_int8", "") for m in a.models]
     sink = None
-    # shortcut: the sink is fixed to 800x600 ChokePoint frames; derive the size from cap for other videos.
-    if a.display == "sink":  # g2d upscales 4:3 to 1440x1080 on the 1080p screen; fullscreen=true hangs the sink
+    size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 800, int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 600)
+    web = None
+    if a.display in ("web", "both"):  # same browser stream as edge_pipeline.py; runs beside the loop
+        import threading
+        from edge_pipeline import web_threads
+
+        web = np.zeros((size[1], size[0], 3), np.uint8)
+        for t in web_threads(web, a.web_port, 15, threading.Event(), {}):
+            t.start()
+    if a.display in ("sink", "both"):  # g2d upscales 4:3 to 1440x1080 on the 1080p screen; fullscreen=true hangs the sink
         sink = cv2.VideoWriter("appsrc ! videoconvert ! imxvideoconvert_g2d ! video/x-raw,width=1440,height=1080 ! waylandsink sync=false",
-                               cv2.CAP_GSTREAMER, 0, 30, (800, 600), True)
+                               cv2.CAP_GSTREAMER, 0, 30, size, True)
         assert sink.isOpened(), "waylandsink did not open (set XDG_RUNTIME_DIR / WAYLAND_DISPLAY)"
     if a.display == "window":
         cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
@@ -122,6 +133,8 @@ def main():
         key = -1
         if sink:
             sink.write(out)
+        if web is not None:
+            web[:] = out if out.shape == web.shape else cv2.resize(out, web.shape[1::-1])
         if a.display == "window":
             cv2.imshow("demo", out)
             key = cv2.waitKey(1) & 0xFF

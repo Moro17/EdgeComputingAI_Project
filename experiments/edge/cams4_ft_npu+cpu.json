@@ -1,0 +1,45 @@
+{
+ "tag": "cams4_ft_npu+cpu",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "lite",
+ "input_dtype": "uint8",
+ "back": 3,
+ "mode": "pipelined",
+ "streams": 4,
+ "source_fps": 25.0,
+ "g2d_resize": true,
+ "fps_total": 69.67,
+ "fps_per_stream": [
+  17.45,
+  17.35,
+  17.25,
+  17.62
+ ],
+ "latency_ms_p50": 501.8,
+ "latency_ms_p95": 1260.7,
+ "stage_ms_p50": {
+  "read": 1.85,
+  "pre": 0.95,
+  "npu": 12.74,
+  "post": 5.54,
+  "out": 0.07,
+  "track": 0.65,
+  "cpu_infer": 124.35
+ },
+ "npu_duty_pct": 88.8,
+ "galcore_npu_load_pct": 15.8,
+ "cpu_busy_pct_per_core": [
+  82.5,
+  85.3,
+  88.6,
+  81.5
+ ],
+ "cpu_busy_pct_total": 337.8,
+ "temp_c_max": 43.0,
+ "frames": 2082,
+ "cpu_model": "yunet_ft_480x640_fp32.tflite",
+ "frames_by_engine": {
+  "npu": 1892,
+  "cpu": 235
+ }
+}

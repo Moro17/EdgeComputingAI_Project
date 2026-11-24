@@ -1,0 +1,47 @@
+{
+ "tag": "gamma_dark_cams3",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "lite",
+ "risk": "d60_t0.1",
+ "zone": null,
+ "gamma": false,
+ "input_dtype": "uint8",
+ "back": 3,
+ "every": 1,
+ "mode": "pipelined",
+ "streams": 3,
+ "source_fps": 25.0,
+ "g2d_resize": true,
+ "fps_total": 74.91,
+ "fps_per_stream": [
+  24.97,
+  24.97,
+  24.97
+ ],
+ "latency_ms_p50": 151.4,
+ "latency_ms_p95": 195.7,
+ "stage_ms_p50": {
+  "read": 1.46,
+  "pre": 0.76,
+  "npu": 10.25,
+  "post": 2.77,
+  "out": 4.75,
+  "track": 1.37
+ },
+ "npu_duty_pct": 76.8,
+ "galcore_npu_load_pct": 12.7,
+ "cpu_busy_pct_per_core": [
+  45.1,
+  46.1,
+  46.1,
+  46.0
+ ],
+ "cpu_busy_pct_total": 183.2,
+ "temp_c_max": 37.0,
+ "frames": 2241,
+ "cpu_model": null,
+ "frames_by_engine": {
+  "npu": 2253,
+  "cpu": 0
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "tag": "s2_serial_u8_cpuresize",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "none",
+ "input_dtype": "uint8",
+ "back": 0,
+ "mode": "serial",
+ "streams": 1,
+ "source_fps": 0,
+ "g2d_resize": false,
+ "fps_total": 50.52,
+ "fps_per_stream": [
+  50.52
+ ],
+ "latency_ms_p50": 19.3,
+ "latency_ms_p95": 21.3,
+ "stage_ms_p50": {
+  "read": 1.05,
+  "pre": 5.82,
+  "npu": 10.12,
+  "post": 1.7,
+  "out": 0.02,
+  "track": 0.03
+ },
+ "npu_duty_pct": 51.1,
+ "galcore_npu_load_pct": 37.3,
+ "cpu_busy_pct_per_core": [
+  31.8,
+  39.6,
+  38.6,
+  37.6
+ ],
+ "cpu_busy_pct_total": 147.7,
+ "temp_c_max": 39.0,
+ "frames": 1516,
+ "cpu_model": null,
+ "frames_by_engine": {
+  "npu": 0,
+  "cpu": 0
+ }
+}

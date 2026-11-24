@@ -1,0 +1,42 @@
+{
+ "tag": "s5_risk",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "lite",
+ "risk": "h13_p3_d60_t0.4",
+ "input_dtype": "uint8",
+ "back": 3,
+ "mode": "pipelined",
+ "streams": 1,
+ "source_fps": 0,
+ "g2d_resize": true,
+ "fps_total": 87.55,
+ "fps_per_stream": [
+  87.55
+ ],
+ "latency_ms_p50": 106.6,
+ "latency_ms_p95": 132.2,
+ "stage_ms_p50": {
+  "read": 1.54,
+  "pre": 0.72,
+  "npu": 10.38,
+  "post": 3.64,
+  "out": 0.03,
+  "track": 1.11
+ },
+ "npu_duty_pct": 90.9,
+ "galcore_npu_load_pct": 22.4,
+ "cpu_busy_pct_per_core": [
+  37.8,
+  38.4,
+  40.1,
+  39.4
+ ],
+ "cpu_busy_pct_total": 155.7,
+ "temp_c_max": 40.0,
+ "frames": 1751,
+ "cpu_model": null,
+ "frames_by_engine": {
+  "npu": 1756,
+  "cpu": 0
+ }
+}

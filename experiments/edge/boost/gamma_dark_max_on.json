@@ -1,0 +1,46 @@
+{
+ "tag": "gamma_dark_max_on",
+ "model": "yunet_ft_480x640_u8.tflite",
+ "tracker": "lite",
+ "risk": "d60_t0.1",
+ "zone": null,
+ "gamma": true,
+ "input_dtype": "uint8",
+ "back": 3,
+ "every": 1,
+ "mode": "pipelined",
+ "streams": 1,
+ "source_fps": 0,
+ "g2d_resize": true,
+ "fps_total": 78.47,
+ "fps_per_stream": [
+  78.47
+ ],
+ "latency_ms_p50": 207.9,
+ "latency_ms_p95": 286.3,
+ "stage_ms_p50": {
+  "read": 1.82,
+  "pre": 0.84,
+  "npu": 10.44,
+  "post": 6.6,
+  "out": 10.28,
+  "gamma": 5.03,
+  "track": 1.99
+ },
+ "npu_duty_pct": 81.9,
+ "galcore_npu_load_pct": 16.8,
+ "cpu_busy_pct_per_core": [
+  64.3,
+  64.5,
+  65.2,
+  65.5
+ ],
+ "cpu_busy_pct_total": 259.6,
+ "temp_c_max": 36.0,
+ "frames": 2358,
+ "cpu_model": null,
+ "frames_by_engine": {
+  "npu": 2363,
+  "cpu": 0
+ }
+}

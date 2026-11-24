@@ -1,0 +1,20 @@
+gpu0 mc clock: 1000065011 HZ.
+gpu0 sh clock: 1000040106 HZ.
+gpu1 mc clock: 1000056605 HZ.
+gpu1 sh clock: 1000053766 HZ.
+gpu16 mc clock: 500024780 HZ.
+-- yunet_ft_480x640_u8
+npu (vx delegate): INFO: Inference timings in us: Init: 14161, First inference: 7884307, Warmup (avg): 7.88431e+06, Inference (avg): 9117.27
+gpu3d (vx, USE_GPU_INFERENCE=1): INFO: Inference timings in us: Init: 14756, First inference: 576431, Warmup (avg): 576431, Inference (avg): 267065
+gpu3d (opencl delegate): INFO: Inference timings in us: Init: 3911, First inference: 197532, Warmup (avg): 192564, Inference (avg): 189569
+cpu 4 threads (xnnpack): INFO: Inference timings in us: Init: 3937, First inference: 79030, Warmup (avg): 72848.4, Inference (avg): 71753.9
+-- yunet_ft_480x640_int8
+npu (vx delegate): INFO: Inference timings in us: Init: 14809, First inference: 7935616, Warmup (avg): 7.93562e+06, Inference (avg): 11993.3
+gpu3d (vx, USE_GPU_INFERENCE=1): INFO: Inference timings in us: Init: 14650, First inference: 601484, Warmup (avg): 601484, Inference (avg): 269783
+gpu3d (opencl delegate): INFO: Inference timings in us: Init: 3747, First inference: 198449, Warmup (avg): 193105, Inference (avg): 190013
+cpu 4 threads (xnnpack): INFO: Inference timings in us: Init: 6855, First inference: 116400, Warmup (avg): 92136.7, Inference (avg): 72094.6
+-- yunet_ft_480x640_fp32
+npu (vx delegate): INFO: Inference timings in us: Init: 13368, First inference: 1303239, Warmup (avg): 1.30324e+06, Inference (avg): 917536
+gpu3d (vx, USE_GPU_INFERENCE=1): INFO: Inference timings in us: Init: 14176, First inference: 812553, Warmup (avg): 812553, Inference (avg): 544004
+gpu3d (opencl delegate): INFO: Inference timings in us: Init: 4654, First inference: 271387, Warmup (avg): 231933, Inference (avg): 212231
+cpu 4 threads (xnnpack): INFO: Inference timings in us: Init: 4689, First inference: 98102, Warmup (avg): 65894.8, Inference (avg): 61217.3
