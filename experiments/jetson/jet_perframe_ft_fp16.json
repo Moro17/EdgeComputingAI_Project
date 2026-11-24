@@ -1,0 +1,18 @@
+{
+ "engine": "yunet_ft_480x640_fp16.engine",
+ "video": "chokepoint.mp4",
+ "back": 0,
+ "risk": "",
+ "tracker": "none",
+ "frames": 1320,
+ "fps": 32.98,
+ "stage_ms_p50": {
+  "read": 0.46,
+  "pre": 2.23,
+  "gpu": 24.99,
+  "post": 1.44,
+  "track": 0.03,
+  "blur": 1.6,
+  "frame": 30.81
+ }
+}

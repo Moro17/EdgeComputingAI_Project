@@ -1,0 +1,6 @@
+{
+ "yunet_480x640_fp32.tflite_t4": 64.3,
+ "yunet_480x640_int8.tflite_t4": 44.8,
+ "yunet_ft_480x640_fp32.tflite_t4": 79.3,
+ "yunet_ft_480x640_int8.tflite_t4": 53.6
+}

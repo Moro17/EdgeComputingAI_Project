@@ -53,7 +53,8 @@ def fast_blur(img, xyxy, side=16):
     for x1, y1, x2, y2 in xyxy:
         if x2 > x1 and y2 > y1:
             r = side / max(x2 - x1, y2 - y1)
-            small = cv2.resize(out[y1:y2, x1:x2], (max(1, round((x2 - x1) * r)), max(1, round((y2 - y1) * r))),
+            # int(): with numpy 1.13 (Jetson Nano, JetPack 4.6) round() of a numpy float stays a float
+            small = cv2.resize(out[y1:y2, x1:x2], (max(1, int(round((x2 - x1) * r))), max(1, int(round((y2 - y1) * r)))),
                                interpolation=cv2.INTER_AREA)
             k = max(3, max(small.shape[:2]) | 1)
             for _ in range(3):

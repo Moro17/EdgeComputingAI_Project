@@ -1,0 +1,16 @@
+{
+ "system": "yqft_board",
+ "video": "chokepoint.mp4",
+ "frames": 2006,
+ "fps": 66.83,
+ "stage_ms_p50": {
+  "read": 2.99,
+  "detect": 10.0,
+  "track": 0.26,
+  "blur": 1.3,
+  "frame": 14.33
+ },
+ "cpu_pct_of_one_core": 693.0,
+ "cores": 12,
+ "peak_rss_mb": 169.4
+}

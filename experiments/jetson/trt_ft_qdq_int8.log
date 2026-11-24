@@ -1,0 +1,106 @@
+&&&& RUNNING TensorRT.trtexec [TensorRT v8201] # /usr/src/tensorrt/bin/trtexec --onnx=yunet_ft_480x640_qboard_480x640.onnx --int8 --fp16 --workspace=1024 --duration=5
+[11/24/2026-01:41:56] [I] === Model Options ===
+[11/24/2026-01:41:56] [I] Format: ONNX
+[11/24/2026-01:41:56] [I] Model: yunet_ft_480x640_qboard_480x640.onnx
+[11/24/2026-01:41:56] [I] Output:
+[11/24/2026-01:41:56] [I] === Build Options ===
+[11/24/2026-01:41:56] [I] Max batch: explicit batch
+[11/24/2026-01:41:56] [I] Workspace: 1024 MiB
+[11/24/2026-01:41:56] [I] minTiming: 1
+[11/24/2026-01:41:56] [I] avgTiming: 8
+[11/24/2026-01:41:56] [I] Precision: FP32+FP16+INT8
+[11/24/2026-01:41:56] [I] Calibration: Dynamic
+[11/24/2026-01:41:56] [I] Refit: Disabled
+[11/24/2026-01:41:56] [I] Sparsity: Disabled
+[11/24/2026-01:41:56] [I] Safe mode: Disabled
+[11/24/2026-01:41:56] [I] DirectIO mode: Disabled
+[11/24/2026-01:41:56] [I] Restricted mode: Disabled
+[11/24/2026-01:41:56] [I] Save engine: 
+[11/24/2026-01:41:56] [I] Load engine: 
+[11/24/2026-01:41:56] [I] Profiling verbosity: 0
+[11/24/2026-01:41:56] [I] Tactic sources: Using default tactic sources
+[11/24/2026-01:41:56] [I] timingCacheMode: local
+[11/24/2026-01:41:56] [I] timingCacheFile: 
+[11/24/2026-01:41:56] [I] Input(s)s format: fp32:CHW
+[11/24/2026-01:41:56] [I] Output(s)s format: fp32:CHW
+[11/24/2026-01:41:56] [I] Input build shapes: model
+[11/24/2026-01:41:56] [I] Input calibration shapes: model
+[11/24/2026-01:41:56] [I] === System Options ===
+[11/24/2026-01:41:56] [I] Device: 0
+[11/24/2026-01:41:56] [I] DLACore: 
+[11/24/2026-01:41:56] [I] Plugins:
+[11/24/2026-01:41:56] [I] === Inference Options ===
+[11/24/2026-01:41:56] [I] Batch: Explicit
+[11/24/2026-01:41:56] [I] Input inference shapes: model
+[11/24/2026-01:41:56] [I] Iterations: 10
+[11/24/2026-01:41:56] [I] Duration: 5s (+ 200ms warm up)
+[11/24/2026-01:41:56] [I] Sleep time: 0ms
+[11/24/2026-01:41:56] [I] Idle time: 0ms
+[11/24/2026-01:41:56] [I] Streams: 1
+[11/24/2026-01:41:56] [I] ExposeDMA: Disabled
+[11/24/2026-01:41:56] [I] Data transfers: Enabled
+[11/24/2026-01:41:56] [I] Spin-wait: Disabled
+[11/24/2026-01:41:56] [I] Multithreading: Disabled
+[11/24/2026-01:41:56] [I] CUDA Graph: Disabled
+[11/24/2026-01:41:56] [I] Separate profiling: Disabled
+[11/24/2026-01:41:56] [I] Time Deserialize: Disabled
+[11/24/2026-01:41:56] [I] Time Refit: Disabled
+[11/24/2026-01:41:56] [I] Skip inference: Disabled
+[11/24/2026-01:41:56] [I] Inputs:
+[11/24/2026-01:41:56] [I] === Reporting Options ===
+[11/24/2026-01:41:56] [I] Verbose: Disabled
+[11/24/2026-01:41:56] [I] Averages: 10 inferences
+[11/24/2026-01:41:56] [I] Percentile: 99
+[11/24/2026-01:41:56] [I] Dump refittable layers:Disabled
+[11/24/2026-01:41:56] [I] Dump output: Disabled
+[11/24/2026-01:41:56] [I] Profile: Disabled
+[11/24/2026-01:41:56] [I] Export timing to JSON file: 
+[11/24/2026-01:41:56] [I] Export output to JSON file: 
+[11/24/2026-01:41:56] [I] Export profile to JSON file: 
+[11/24/2026-01:41:56] [I] 
+[11/24/2026-01:41:56] [I] === Device Information ===
+[11/24/2026-01:41:56] [I] Selected Device: NVIDIA Tegra X1
+[11/24/2026-01:41:56] [I] Compute Capability: 5.3
+[11/24/2026-01:41:56] [I] SMs: 1
+[11/24/2026-01:41:56] [I] Compute Clock Rate: 0.9216 GHz
+[11/24/2026-01:41:56] [I] Device Global Memory: 3956 MiB
+[11/24/2026-01:41:56] [I] Shared Memory per SM: 64 KiB
+[11/24/2026-01:41:56] [I] Memory Bus Width: 64 bits (ECC disabled)
+[11/24/2026-01:41:56] [I] Memory Clock Rate: 0.01275 GHz
+[11/24/2026-01:41:56] [I] 
+[11/24/2026-01:41:56] [I] TensorRT version: 8.2.1
+[11/24/2026-01:41:58] [I] [TRT] [MemUsageChange] Init CUDA: CPU +229, GPU +0, now: CPU 248, GPU 2889 (MiB)
+[11/24/2026-01:41:58] [I] [TRT] [MemUsageSnapshot] Begin constructing builder kernel library: CPU 248 MiB, GPU 2889 MiB
+[11/24/2026-01:41:58] [I] [TRT] [MemUsageSnapshot] End constructing builder kernel library: CPU 278 MiB, GPU 2918 MiB
+[11/24/2026-01:41:58] [I] Start parsing network model
+[11/24/2026-01:41:58] [I] [TRT] ----------------------------------------------------------------
+[11/24/2026-01:41:58] [I] [TRT] Input filename:   yunet_ft_480x640_qboard_480x640.onnx
+[11/24/2026-01:41:58] [I] [TRT] ONNX IR version:  0.0.7
+[11/24/2026-01:41:58] [I] [TRT] Opset version:    13
+[11/24/2026-01:41:58] [I] [TRT] Producer name:    onnx.quantize
+[11/24/2026-01:41:58] [I] [TRT] Producer version: 0.1.0
+[11/24/2026-01:41:58] [I] [TRT] Domain:           
+[11/24/2026-01:41:58] [I] [TRT] Model version:    0
+[11/24/2026-01:41:58] [I] [TRT] Doc string:       
+[11/24/2026-01:41:58] [I] [TRT] ----------------------------------------------------------------
+[11/24/2026-01:41:58] [W] [TRT] onnx2trt_utils.cpp:366: Your ONNX model has been generated with INT64 weights, while TensorRT does not natively support INT64. Attempting to cast down to INT32.
+[11/24/2026-01:41:58] [E] Error[3]: arith.constant10_DequantizeLinear_dequantize_scale_node: only activation types allowed as input to this layer.
+[11/24/2026-01:41:58] [E] [TRT] ModelImporter.cpp:773: While parsing node number 0 [DequantizeLinear -> "arith.constant10"]:
+[11/24/2026-01:41:58] [E] [TRT] ModelImporter.cpp:774: --- Begin node ---
+[11/24/2026-01:41:58] [E] [TRT] ModelImporter.cpp:775: input: "arith.constant10_quantized"
+input: "arith.constant10_quantized_scale"
+input: "arith.constant10_quantized_zero_point"
+output: "arith.constant10"
+name: "arith.constant10_DequantizeLinear"
+op_type: "DequantizeLinear"
+
+[11/24/2026-01:41:58] [E] [TRT] ModelImporter.cpp:776: --- End node ---
+[11/24/2026-01:41:58] [E] [TRT] ModelImporter.cpp:779: ERROR: ModelImporter.cpp:179 In function parseGraph:
+[6] Invalid Node - arith.constant10_DequantizeLinear
+arith.constant10_DequantizeLinear_dequantize_scale_node: only activation types allowed as input to this layer.
+[11/24/2026-01:41:58] [E] Failed to parse onnx file
+[11/24/2026-01:41:58] [I] Finish parsing network model
+[11/24/2026-01:41:58] [E] Parsing model failed
+[11/24/2026-01:41:58] [E] Failed to create engine from model.
+[11/24/2026-01:41:58] [E] Engine set up failed
+&&&& FAILED TensorRT.trtexec [TensorRT v8201] # /usr/src/tensorrt/bin/trtexec --onnx=yunet_ft_480x640_qboard_480x640.onnx --int8 --fp16 --workspace=1024 --duration=5
