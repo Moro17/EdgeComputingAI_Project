@@ -1,0 +1,13 @@
+system,degrade,faces_outside_gt,pct_protected,pct_faces_leaked,people_leaked_outside_gt,people_leaked_duplicate,people_leaked_single,people,pct_people_leaked_gt,pct_people_leaked_gt_or_outside,people_only_outside_gt
+yqft_board+risk_d60_t0.1+lite+back3,dark:2,4563,94.5,0.4,9,3,6,29,34.5,55.2,6
+yqft_board+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,94.5,0.4,9,3,6,29,34.5,55.2,6
+yqft_board_gam+risk_d60_t0.1+lite+back3,dark:2,4563,94.8,0.2,3,2,1,29,3.4,13.8,3
+yqft_board_gam+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,94.8,0.2,3,2,1,29,3.4,13.8,3
+yqft_board_clahe+risk_d60_t0.1+lite+back3,dark:2,4563,95.7,0.2,5,3,2,29,3.4,17.2,4
+yqft_board_clahe+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,95.7,0.2,5,3,2,29,3.4,17.2,4
+yqft_board_zoom+risk_d60_t0.1+lite+back3,dark:2,4563,94.8,0.4,9,3,6,29,34.5,55.2,6
+yqft_board_zoom+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,94.8,0.4,9,3,6,29,34.5,55.2,6
+yqft_board_gamzoom+risk_d60_t0.1+lite+back3,dark:2,4563,95.2,0.2,3,2,1,29,3.4,13.8,3
+yqft_board_gamzoom+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,95.2,0.2,3,2,1,29,3.4,13.8,3
+yqft_board_clahezoom+risk_d60_t0.1+lite+back3,dark:2,4563,96.1,0.2,5,3,2,29,3.4,17.2,4
+yqft_board_clahezoom+risk_d60_t0.1_zr0.1_m0+lite+back3,dark:2,4563,96.1,0.2,5,3,2,29,3.4,17.2,4

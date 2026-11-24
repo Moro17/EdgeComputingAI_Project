@@ -1,0 +1,7 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yq_board+lite+back3,yq_board,lite+back3,0.6,,0.9443,99,70.7071,20.202,84.0,33,7.798,0.3908,11.3115,59.5219,16.3997,19.9738,['CPUExecutionProvider']
+yq_board+risk_d60_t0.1+lite+back3,yq_board,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,,0.9563,99,66.6667,20.202,80.0,33,6.8283,0.3679,14.2551,59.5219,16.3997,19.9738,['CPUExecutionProvider']
+yq_board_gam+lite+back3,yq_board_gam,lite+back3,0.6,,0.9375,99,74.7475,21.2121,86.0,59,8.9596,0.4064,11.2104,59.5219,16.3997,19.9738,imx8mp-npu-vx (board_bench.py)
+yq_board_gam+risk_d60_t0.1+lite+back3,yq_board_gam,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,,0.9545,99,63.6364,19.1919,76.0,33,6.8788,0.375,14.2761,59.5219,16.3997,19.9738,imx8mp-npu-vx (board_bench.py)
+yq_board_clahe+lite+back3,yq_board_clahe,lite+back3,0.6,,0.9388,99,74.7475,20.202,86.0,59,9.0808,0.4073,11.6015,59.5219,16.3997,19.9738,imx8mp-npu-vx (board_bench.py)
+yq_board_clahe+risk_d60_t0.1+lite+back3,yq_board_clahe,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.6,,0.956,99,67.6768,20.202,82.0,33,6.9798,0.3825,16.1756,59.5219,16.3997,19.9738,imx8mp-npu-vx (board_bench.py)

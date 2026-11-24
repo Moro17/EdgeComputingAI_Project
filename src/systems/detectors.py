@@ -272,6 +272,10 @@ SYSTEMS = {
     **{f"yolov8n_face_{s}_npu": (lambda _: BoardOnly(), 0.49) for s in (256, 320, 416, 640)},
     **{f"yunet_{s}_npu": (lambda _: BoardOnly(), 0.9) for s in ("608x800", "480x640", "384x512", "320x416")},
     "yunet_ft_480x640_npu": (lambda _: BoardOnly(), 0.7),  # epoch 20; threshold chosen on val (docs/plan.md Phase 5)
+    # detection boosts on the faithful INT8 simulation: precomputed by src/analysis/boost_dets.py (dark-frame
+    # enhancement gam/clahe, second inference on the reflection zone)
+    **{f"{b}_{v}": (lambda _: BoardOnly(), t) for b, t in (("yq_board", 0.6), ("yqft_board", 0.7))
+       for v in ("gam", "clahe", "zoom", "gamzoom", "clahezoom")},
     # FP32 TFLite of the same graphs (export --keep-float), run with board_bench.py --cpu: quantization before/after
     "yunet_480x640_fp32": (lambda _: BoardOnly(), 0.6),
     "yunet_ft_480x640_fp32": (lambda _: BoardOnly(), 0.7),

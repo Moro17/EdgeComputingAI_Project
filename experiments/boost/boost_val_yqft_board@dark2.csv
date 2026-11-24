@@ -1,0 +1,10 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yqft_board,yqft_board,,0.7,dark:2,0.823,521,57.5816,5.5662,100.0,42,7.595,0.8931,0.7782,103.6389,9.0781,12.549,['CPUExecutionProvider']
+yqft_board+lite+back3,yqft_board,lite+back3,0.7,dark:2,0.9217,521,33.9731,2.8791,96.5517,41,3.2764,0.7758,1.2416,103.6389,9.0781,12.549,['CPUExecutionProvider']
+yqft_board+risk_d60_t0.1+lite+back3,yqft_board,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9722,521,13.0518,1.3436,82.7586,25,0.8618,0.6173,3.9681,103.6389,9.0781,12.549,['CPUExecutionProvider']
+yqft_board_gam,yqft_board_gam,,0.7,dark:2,0.8973,521,50.2879,3.6468,100.0,34,3.3628,0.8543,0.8751,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)
+yqft_board_gam+lite+back3,yqft_board_gam,lite+back3,0.7,dark:2,0.9682,521,17.4664,1.3436,93.1034,32,1.2342,0.7515,1.3437,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)
+yqft_board_gam+risk_d60_t0.1+lite+back3,yqft_board_gam,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9943,521,4.9904,0.1919,44.8276,7,0.1324,0.4389,4.4433,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)
+yqft_board_clahe,yqft_board_clahe,,0.7,dark:2,0.8521,521,54.7025,5.3743,100.0,39,6.1113,0.8783,0.8239,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)
+yqft_board_clahe+lite+back3,yqft_board_clahe,lite+back3,0.7,dark:2,0.9388,521,31.4779,3.263,96.5517,33,2.3474,0.7283,1.2952,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)
+yqft_board_clahe+risk_d60_t0.1+lite+back3,yqft_board_clahe,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,dark:2,0.9886,521,6.5259,0.7678,62.069,11,0.261,0.4472,13.1099,103.6389,9.0781,12.549,imx8mp-npu-vx (board_bench.py)

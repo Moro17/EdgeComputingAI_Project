@@ -1,0 +1,7 @@
+system,detector,policy,threshold,degrade,frame_recall,appearances,pct_appearances_leaked,pct_appearances_leaked_null,pct_identities_leaked,max_exposed_run,mean_max_exposed_run,probe_hit_rate,pct_area_masked,fps,p50_ms,p95_ms,device
+yqft_board+lite+back3,yqft_board,lite+back3,0.7,,0.926,99,75.7576,22.2222,86.0,53,11.6061,0.4814,10.6117,64.9274,15.0254,18.8668,['CPUExecutionProvider']
+yqft_board+risk_d60_t0.1+lite+back3,yqft_board,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,,0.9452,99,65.6566,20.202,76.0,50,9.2525,0.4437,13.2541,64.9274,15.0254,18.8668,['CPUExecutionProvider']
+yqft_board_gam+lite+back3,yqft_board_gam,lite+back3,0.7,,0.9187,99,78.7879,23.2323,88.0,53,12.8485,0.4805,10.6171,64.9274,15.0254,18.8668,imx8mp-npu-vx (board_bench.py)
+yqft_board_gam+risk_d60_t0.1+lite+back3,yqft_board_gam,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,,0.9427,99,67.6768,21.2121,80.0,50,9.5758,0.4496,13.2891,64.9274,15.0254,18.8668,imx8mp-npu-vx (board_bench.py)
+yqft_board_clahe+lite+back3,yqft_board_clahe,lite+back3,0.7,,0.9214,99,74.7475,24.2424,84.0,67,12.9697,0.4887,10.7255,64.9274,15.0254,18.8668,imx8mp-npu-vx (board_bench.py)
+yqft_board_clahe+risk_d60_t0.1+lite+back3,yqft_board_clahe,"risk(('dark', 60), ('thr_dark', 0.1))+lite+back3",0.7,,0.9434,99,68.6869,19.1919,84.0,50,9.4444,0.4533,14.3574,64.9274,15.0254,18.8668,imx8mp-npu-vx (board_bench.py)
