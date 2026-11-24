@@ -23,6 +23,7 @@ REFLECTIONS = Path(__file__).resolve().parents[2] / "experiments" / "outside_gt"
 
 GRID_H, GRID_W = 30, 40
 MIN_BLOB = 12  # cells; a door zone smaller than this is a stray box
+MIN_SUPPORT = 3  # reflections in different frames a door-zone blob needs
 SMALL = (80, 60)
 
 
@@ -54,7 +55,15 @@ def reflection_zone(seq, shape, path=REFLECTIONS):
         return np.zeros((GRID_H, GRID_W), bool)
     g = box_grid(r, shape)
     n, lab, st, _ = cv2.connectedComponentsWithStats(g.astype(np.uint8), connectivity=8)
-    keep = [i for i in range(1, n) if st[i, cv2.CC_STAT_AREA] >= MIN_BLOB]  # drop stray cells (one odd box)
+    # a blob must be backed by reflections in several frames: one wrong match (P2E_S4_C3.1 frame 4836, a box on a
+    # person's dark hair matched to her own face) made a floor blob of ~35 cells, larger than MIN_BLOB
+    h, w = shape[:2]
+    cy = np.clip(((r.y + r.h / 2) * GRID_H / h).astype(int), 0, GRID_H - 1).to_numpy()
+    cx = np.clip(((r.x + r.w / 2) * GRID_W / w).astype(int), 0, GRID_W - 1).to_numpy()
+    blob = lab[cy, cx]
+    frames = r.seq.astype(str).to_numpy() + ":" + r.frame.astype(str).to_numpy()
+    keep = [i for i in range(1, n) if st[i, cv2.CC_STAT_AREA] >= MIN_BLOB
+            and len(set(frames[blob == i])) >= MIN_SUPPORT]
     return np.isin(lab, keep)
 
 

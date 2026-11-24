@@ -399,9 +399,13 @@ recognisable through a door reflection. EgoBlur per-frame: 27 of 29 people throu
 
 Fix, the reflection zone (`risk_..._zrT_mM`, systems/scene.py `reflection_zone`): the cells where the attacker found
 reflections on VAL (our own YuNet boxes >= 0.1 outside the GT matched to a person in the same frame; 1709 on val,
-`experiments/outside_gt/reflections_val.csv`; 0-11% of the frame per camera, on the door glass), where a box with
-score >= T is promoted (as the dark rule does in dark frames). Test, people recognised through reflections,
-stock / fine-tuned, clean:
+`experiments/outside_gt/reflections_val.csv`; 0-10% of the frame per camera, on the door glass), where a box with
+score >= T is promoted (as the dark rule does in dark frames). A zone blob needs >= 12 cells AND reflections in >= 3
+different val frames: one wrong match (P2E_S4_C3.1 frame 4836, a box on a person's dark hair matched to her own face)
+had made a 35-cell blob on the floor of P2E C3, visible in the demo; the support rule removes it and the 2-reflection
+zone of P2E C2 (rerun 2026-11-24 with the boosts below: every exposure and people count unchanged, area at most 0.05 points
+lower, i.e. the tables here are unchanged at two decimals). Test, people
+recognised through reflections, stock / fine-tuned, clean:
 
 | policy | through reflections | GT exposure | area masked |
 |---|---|---|---|
