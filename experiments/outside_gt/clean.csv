@@ -1,0 +1,8 @@
+system,degrade,faces_outside_gt,pct_protected,pct_faces_leaked,people_leaked_outside_gt,people_leaked_duplicate,people_leaked_single,people,pct_people_leaked_gt,pct_people_leaked_gt_or_outside,people_only_outside_gt
+yunet_480x640_npu,,4666,96.1,3.8,29,24,26,29,0.0,100.0,29
+yunet_480x640_npu+lite+back3,,4666,98.3,1.1,13,13,3,29,0.0,44.8,13
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,,4666,98.3,1.1,13,13,3,29,0.0,44.8,13
+yunet_ft_480x640_npu,,4666,96.3,3.7,29,26,26,29,0.0,100.0,29
+yunet_ft_480x640_npu+lite+back3,,4666,98.3,1.2,18,17,4,29,0.0,62.1,18
+yunet_ft_480x640_npu+risk_d60_t0.1+lite+back3,,4666,98.3,1.2,18,17,4,29,0.0,62.1,18
+egoblur,,4666,98.2,1.8,27,20,19,29,0.0,93.1,27

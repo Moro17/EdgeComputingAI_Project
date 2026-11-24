@@ -1,0 +1,5 @@
+system,degrade,faces_outside_gt,pct_protected,pct_faces_leaked,people_leaked_outside_gt,people_leaked_duplicate,people_leaked_single,people,pct_people_leaked_gt,pct_people_leaked_gt_or_outside,people_only_outside_gt
+yunet_480x640_npu+risk_d60_t0.1+lite+back3,,4563,98.5,1.0,13,13,0,29,0.0,44.8,13
+yunet_480x640_npu+risk_d60_t0.1_zr0.1_m0+lite+back3,,4563,99.1,0.3,9,9,0,29,0.0,31.0,9
+yunet_480x640_npu+risk_d60_t0.1_zr0.3_m0+lite+back3,,4563,99.0,0.4,10,10,0,29,0.0,34.5,10
+yunet_480x640_npu+risk_d60_t0.1_zr0.1_m2+lite+back3,,4563,99.1,0.3,9,9,0,29,0.0,31.0,9
