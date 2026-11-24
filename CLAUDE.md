@@ -15,8 +15,13 @@ adaptive anonymization policy, running on an NXP i.MX 8M Plus NPU.
 
 ## Research questions
 - RQ1: How does frame-level recall translate into identity-level exposure as videos get longer and conditions degrade?
-- RQ2: How much does temporal + pose-based recovery of missed faces reduce exposure, and at what masking cost?
-- RQ3: Does confidence-based choice between synthetic replacement and conservative masking beat any fixed method on privacy–utility?
+- RQ2: How much does temporal recovery of missed faces (tracker + look-back) reduce exposure, and at what masking cost?
+  (Pose fallback dropped 2026-11-21: after tracking, at most one person per condition leaks only through undetected
+  frames; docs/next-runs.md.)
+- RQ3 (reformulated 2026-11-21, Moro; confirm with Valerian): does a context-adaptive detection threshold (lower only
+  in dark frames, from frame brightness) beat every fixed threshold on exposure vs masked area? Was: synthetic
+  replacement vs masking, dropped because leaks come from missed faces, not from weak obfuscation (0.3% of blurred
+  faces recognised), and synthetic replacement does not fit the board.
 - RQ4: How do INT8, detection interval N and CPU/NPU split shift the trade-off; which config is real-time on i.MX 8M Plus?
 
 ## Benchmark (current phase: baselines first, answers RQ1)
@@ -25,7 +30,7 @@ adaptive anonymization policy, running on an NXP i.MX 8M Plus NPU.
 | Tier | Dataset | Use |
 |---|---|---|
 | 1 main | ChokePoint (Zenodo record 815657) + PLUSFiaQ (FaceQSORT, arXiv 2501.11741; also ships box annotations for 6 ChokePoint sequences) | Multi-face surveillance; enroll identities from OTHER sequences of the same person |
-| 2 hard | Music Video dataset (Zhang et al., 8 videos, ~3.8k tracklets, ~118k face boxes) | Shot changes, fast motion; enroll from held-out frames |
+| 2 hard | Music Video dataset (Zhang et al., 8 videos, 50 people, 95k GT faces; in use since 2026-11-21) | Shot changes, fast motion; each video split in halves, gallery from the other half (upper bound on exposure) |
 | 3 stress | Tier 1 + synthetic degradations (low light, motion blur, downscale, occlusion) at several severities | Exposure vs severity curve |
 | optional | FANVID (low-res faces, HR mugshot gallery) | Check license first |
 
@@ -93,10 +98,12 @@ Phases, gates and the ChokePoint train/val/test split: docs/plan.md.
   by the judge). Decode on the board uses vpudec + imxvideoconvert_g2d with appsink sync=false (7.6 ms).
 - Operating thresholds (chosen on val, INT8 480x640): stock YuNet 0.6, fine-tuned 0.7. OpenCV's default 0.9 exposes
   every val identity. Deployed fine-tuned model: epoch 20 (docs/plan.md Phase 4).
+- Dark rule (RQ3), proposed, confirm with Valerian: `risk_d60_t0.1` (mean grey < 60 -> threshold 0.1) for both models: on Music Video T = 0.1 beats
+  the val-chosen fine-tuned T = 0.3; report the whole T curve (docs/next-runs.md).
 - Edge input size: YuNet 480x640 (largest whose detector p50 fits 40 - decode - fast_blur - 2 ms); see docs/plan.md Phase 1.
 
 ## Open decisions (settle with Moro)
-- RQ3 scope if synthetic replacement is too heavy for the board (blur vs face bank vs masking).
+- RQ3 reformulation above: Moro agreed, Valerian to confirm.
 
 ## Licensing / ethics
 - InsightFace models (SCRFD, ArcFace) are non-commercial research only — fine for the paper, keep YuNet on the board.
